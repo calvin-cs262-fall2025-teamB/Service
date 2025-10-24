@@ -31,7 +31,7 @@ SELECT *
 SELECT *
   FROM CompletedAdventure
   WHERE playerID = 1
-  ORDER BY completionDate
+  ORDER BY completionDate DESC
   ;
 -- Get all completed adventures by player w/ ID 1, sorted by completion time
 SELECT *
@@ -39,6 +39,9 @@ SELECT *
   WHERE playerID = 1
   ORDER BY completionTime
   ;
+
+
+
 
 -- -- Get the cross-product of all the tables.
 -- SELECT *
