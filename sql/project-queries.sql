@@ -1,19 +1,3 @@
--- SELECT *
---   FROM Player
---   ;
--- SELECT *
---   FROM Region
---   ;
--- SELECT *
---   FROM Landmark
---   ;
--- SELECT *
---   FROM Adventure
---   ;
--- SELECT *
---   FROM Token
---   ;
-
 -- Get the player records.
 SELECT * 
   FROM Player
@@ -43,14 +27,20 @@ SELECT *
   WHERE playerID = 1
   ;
 
--- Get the cross-product of all the tables.
+-- Get all completed adventures by player w/ ID 1, sorted by most recent
 SELECT *
-  FROM Player, Region, Landmark, Adventure, Token
+  FROM CompletedAdventure
+  WHERE playerID = 1
+  ORDER BY completionDate
+  ;
+-- Get all completed adventures by player w/ ID 1, sorted by completion time
+SELECT *
+  FROM CompletedAdventure
+  WHERE playerID = 1
+  ORDER BY completionTime
   ;
 
--- -- Get the highest score ever recorded.
---   SELECT score
---     FROM PlayerGame
--- ORDER BY score DESC
---    LIMIT 1
---    ;
+-- -- Get the cross-product of all the tables.
+-- SELECT *
+--   FROM Player, Region, Landmark, Adventure, Token
+--   ;
