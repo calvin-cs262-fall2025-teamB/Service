@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS CollectedToken;
+DROP TABLE IF EXISTS AdventureInProgress;
 DROP TABLE IF EXISTS CompletedAdventure;
 DROP TABLE IF EXISTS Token;
 DROP TABLE IF EXISTS Adventure;
@@ -65,66 +67,26 @@ CREATE TABLE CompletedAdventure (
     completionTime interval
 );
 
--- CREATE TABLE AdventureInProgress (
---     ID SERIAL PRIMARY KEY,
---     adventurerID integer REFERENCES Adventurer(ID),
---     adventureID integer REFERENCES Adventure(ID),
+CREATE TABLE AdventureInProgress (
+    ID SERIAL PRIMARY KEY,
+    adventurerID integer REFERENCES Adventurer(ID),
+    adventureID integer REFERENCES Adventure(ID),
+    
+    dateStarted timestamp DEFAULT CURRENT_TIMESTAMP,
+    lastUpdated timestamp DEFAULT CURRENT_TIMESTAMP,
+    tokensCollected integer DEFAULT 0,
+    
+    -- Prevent duplicate in-progress adventures for same user
+    UNIQUE(adventurerID, adventureID)
+);
 
---     dateStarted date,
--- );
-
--- CREATE TABLE AdventureInProgressToken (
---     ID SERIAL PRIMARY KEY,
---     adventureID integer REFERENCES Adventure(ID),
---     tokenID integer REFERENCES Token(ID),
-
---     isCollected boolean,
--- );
-
-GRANT SELECT ON Adventurer TO PUBLIC;
-GRANT SELECT ON Region TO PUBLIC;
-GRANT SELECT ON Landmark TO PUBLIC;
-GRANT SELECT ON Adventure TO PUBLIC;
-GRANT SELECT ON Token TO PUBLIC;
-GRANT SELECT ON CompletedAdventure TO PUBLIC;
-
--- Add sample records
-INSERT INTO Adventurer(username, password, profilePicture) VALUES ('Adventurer 1', '123', 'pictures/img1.jpg');
-INSERT INTO Adventurer(username, password, profilePicture) VALUES ('Adventurer 2', '456', 'pictures/img2.jpg');
-INSERT INTO Adventurer(username, password, profilePicture) VALUES ('Adventurer 3', '789', 'pictures/img3.jpg');
-
-INSERT INTO Region(name, adventurerID, description, location, radius) VALUES ('Region 1', 1, "Region 1 Desc", POINT(0, 0), 100);
-INSERT INTO Region(name, adventurerID, description, location, radius) VALUES ('Region 2', 2, "Region 2 Desc", POINT(0, 0), 100);
-INSERT INTO Region(name, adventurerID, description, location, radius) VALUES ('Region 3', 3, "Region 3 Desc", POINT(0, 0), 100);
-
-INSERT INTO Landmark(name, regionID, location) VALUES ('Landmark 1', 1, POINT(0, 0));
-INSERT INTO Landmark(name, regionID, location) VALUES ('Landmark 2', 1, POINT(0, 0));
-INSERT INTO Landmark(name, regionID, location) VALUES ('Landmark 3', 2, POINT(0, 0));
-INSERT INTO Landmark(name, regionID, location) VALUES ('Landmark 4', 2, POINT(0, 0));
-INSERT INTO Landmark(name, regionID, location) VALUES ('Landmark 5', 3, POINT(0, 0));
-INSERT INTO Landmark(name, regionID, location) VALUES ('Landmark 6', 3, POINT(0, 0));
-
-INSERT INTO Adventure(name, adventurerID, regionID, location, numTokens) VALUES ('Adventure 1', 1, 1, POINT(0, 0), 1);
-INSERT INTO Adventure(name, adventurerID, regionID, location, numTokens) VALUES ('Adventure 2', 2, 1, POINT(0, 0), 2);
-INSERT INTO Adventure(name, adventurerID, regionID, location, numTokens) VALUES ('Adventure 3', 3, 1, POINT(0, 0), 3);
-
--- Adventure 1 --
-INSERT INTO Token(adventureID, location, hint, tokenOrder) VALUES (1, POINT(0, 0), "Adv 1: Tok 1: Hint", 1);
-INSERT INTO Token(adventureID, location, hint, tokenOrder) VALUES (1, POINT(10, 10), "Adv 1: Tok 2: Hint", 2);
-
--- Adventure 2 --
-INSERT INTO Token(adventureID, location, hint, tokenOrder) VALUES (2, POINT(0, 0), "Adv 2: Tok 1: Hint", 1);
-INSERT INTO Token(adventureID, location, hint, tokenOrder) VALUES (2, POINT(10, 10), "Adv 2: Tok 2: Hint", 2);
-
--- Adventure 3 --
-INSERT INTO Token(adventureID, location, hint, tokenOrder) VALUES (3, POINT(0, 0), "Adv 3: Tok 1: Hint", 1);
-INSERT INTO Token(adventureID, location, hint, tokenOrder) VALUES (4, POINT(10, 10), "Adv 3: Tok 2: Hint", 2);
-
-INSERT INTO CompletedAdventure(adventurerID, adventureID, completionDate, completionTime)
-    VALUES (1, 2, '1000-01-13', '4:50:30');
-INSERT INTO CompletedAdventure(adventurerID, adventureID, completionDate, completionTime)
-    VALUES (1, 3, '1000-01-14', '5:50:30');
-INSERT INTO CompletedAdventure(adventurerID, adventureID, completionDate, completionTime)
-    VALUES (1, 5, '1000-01-15', '6:50:30');
-INSERT INTO CompletedAdventure(adventurerID, adventureID, completionDate, completionTime)
-    VALUES (1, 6, '1000-01-16', '7:50:30');
+CREATE TABLE CollectedToken (
+    ID SERIAL PRIMARY KEY,
+    adventureInProgressID integer REFERENCES AdventureInProgress(ID),
+    tokenID integer REFERENCES Token(ID),
+    
+    collectedAt timestamp DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Prevent collecting same token twice in same adventure instance
+    UNIQUE(adventureInProgressID, tokenID)
+);
