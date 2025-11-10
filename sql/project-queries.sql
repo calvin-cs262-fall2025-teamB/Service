@@ -1,49 +1,73 @@
--- Get the Adventurer records.
-SELECT * 
-  FROM Adventurer
-  ;
+---- Playing Adventure Queries ----
+-- Get Count of Tokens in Adventure X
 
--- Get all landmarks in Region 1.
+-- Get Landmarks in Region X
 SELECT *
   FROM Landmark
   WHERE regionID = 1
   ;
 
--- Get all tokens in Adventure 1.
+-- Get tokens in adventure X ordered by tokenOrder
 SELECT *
   FROM Token
   WHERE adventureID = 1
+  ORDER BY tokenOrder
   ;
 
--- Get all adventures made by player w/ ID 1
+---- Homepage ----
+-- Get all regions made by Adventurer X
+SELECT *
+  FROM Region
+  WHERE Region.AdventurerID = 1
+  ;
+
+-- -- Get all adventures sorted by distance
+-- SELECT *
+--   FROM Adventure
+--   ORDER BY SQRT(playerLocation - Adventure.location) DESC;
+--   ;
+
+-- Get all adventures in Region X
 SELECT *
   FROM Adventure
-  WHERE adventurerID = 1
+  WHERE Adventure.regionID = 1
   ;
 
--- Get all completed adventures by player w/ ID 1
+---- Adventure Page ----
+-- Get adventure X
 SELECT *
+  FROM Adventure
+  WHERE ID = 1
+  ;
+
+---- Profile Page ----
+-- Get Adventurer data X
+SELECT *
+  FROM Adventurer
+  WHERE ID = 1
+  ;
+-- Get count of all completed adventures by adventurer X
+SELECT COUNT(*)
   FROM CompletedAdventure
   WHERE adventurerID = 1
   ;
-
--- Get all completed adventures by player w/ ID 1, sorted by most recent
+-- Get count of all tokens collected by player
+SELECT COUNT(*)
+  FROM Token, CompletedAdventure
+  WHERE CompletedAdventure.adventurerID = 1
+  AND Token.adventureID = CompletedAdventure.adventureID
+  ;
+-- Get count of all adventures created by player
+SELECT COUNT(*)
+  FROM Adventure
+  WHERE adventurerID = 1
+  ;
+-- Get all adventures completed by player sorted by completion date (most recent)
 SELECT *
   FROM CompletedAdventure
   WHERE adventurerID = 1
   ORDER BY completionDate DESC
   ;
--- Get all completed adventures by player w/ ID 1, sorted by completion time
-SELECT *
-  FROM CompletedAdventure
-  WHERE adventurerID = 1
-  ORDER BY completionTime
-  ;
 
+---- Creation ----
 
-
-
--- -- Get the cross-product of all the tables.
--- SELECT *
---   FROM Adventurer, Region, Landmark, Adventure, Token
---   ;
