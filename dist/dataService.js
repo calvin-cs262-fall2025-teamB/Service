@@ -1,3 +1,4 @@
+"use strict";
 /**
  * This module implements a REST-inspired web service for the Adventure Game DB hosted
  * on PostgreSQL. Notes:
@@ -35,45 +36,24 @@
  * @date: Summer, 2020
  * @date: Fall, 2025 (updated to JS->TS, Node version, and master->main repo)
  */
-
-import dotenv = require('dotenv');
-import express = require('express');
-import pgPromise = require('pg-promise');
-
+Object.defineProperty(exports, "__esModule", { value: true });
+const dotenv = require("dotenv");
+const express = require("express");
+const pgPromise = require("pg-promise");
 // Load environment variables from .env file
 dotenv.config();
-
-// Import types for compile-time checking.
-import type { Request, Response, NextFunction } from 'express';
-import type { 
-    Player, 
-    PlayerInput, 
-    MonopolyGame, 
-    Adventurer, 
-    AdventurerInput, 
-    Adventure, 
-    Region, 
-    Token,
-    CompletedAdventure,
-    AdventureInProgress,
-    CollectedToken,
-    Landmark
-} from './types';
-
 // Set up the database
 const db = pgPromise()({
     host: process.env.DB_SERVER,
-    port: parseInt(process.env.DB_PORT as string) || 5432,
+    port: parseInt(process.env.DB_PORT) || 5432,
     database: process.env.DB_DATABASE,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
 });
-
 // Configure the server and its routes
 const app = express();
-const port: number = parseInt(process.env.PORT as string) || 3000;
+const port = parseInt(process.env.PORT) || 3000;
 const router = express.Router();
-
 router.use(express.json());
 router.get('/', readHello);
 router.get('/players', readPlayers);
@@ -81,109 +61,95 @@ router.get('/players/:id', readPlayer);
 router.put('/players/:id', updatePlayer);
 router.post('/players', createPlayer);
 router.delete('/players/:id', deletePlayer);
-
 // Homework 3 Endpoints
 router.get('/games', readGames);
 router.get('/games/:id', readGame);
 router.delete('/games/:id', deleteGame);
-
 // Project routes (ignore for Lab/HW)
 router.get('/adventures', readAdventures);
 router.get('/adventuresInRegion/:id', readAdventuresByRegion);
-
-
 app.use(router);
-
-app.listen(port, (): void => {
+app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 });
-
 /**
  * This utility function standardizes the response pattern for database queries,
  * returning the data using the given response, or a 404 status for null data
  * (e.g., when a record is not found).
  */
-function returnDataOr404(response: Response, data: unknown): void {
+function returnDataOr404(response, data) {
     if (data == null) {
         response.sendStatus(404);
-    } else {
+    }
+    else {
         response.send(data);
     }
 }
-
 /**
  * This endpoint returns a simple hello-world message, serving as a basic
  * health check and welcome message for the API.
  */
-function readHello(_request: Request, response: Response): void {
+function readHello(_request, response) {
     response.send('Hello, CS 262 Adventure Game service!');
 }
-
 // CRUD functions
-
 /**
  * Retrieves all players from the database.
  */
-function readPlayers(_request: Request, response: Response, next: NextFunction): void {
+function readPlayers(_request, response, next) {
     db.manyOrNone('SELECT * FROM Player')
-        .then((data: Player[]): void => {
-            // data is a list, never null, so returnDataOr404 isn't needed.
-            response.send(data);
-        })
-        .catch((error: Error): void => {
-            next(error);
-        });
+        .then((data) => {
+        // data is a list, never null, so returnDataOr404 isn't needed.
+        response.send(data);
+    })
+        .catch((error) => {
+        next(error);
+    });
 }
-
 /**
  * Retrieves a specific player by ID.
  */
-function readPlayer(request: Request, response: Response, next: NextFunction): void {
+function readPlayer(request, response, next) {
     db.oneOrNone('SELECT * FROM Player WHERE id=${id}', request.params)
-        .then((data: Player | null): void => {
-            returnDataOr404(response, data);
-        })
-        .catch((error: Error): void => {
-            next(error);
-        });
+        .then((data) => {
+        returnDataOr404(response, data);
+    })
+        .catch((error) => {
+        next(error);
+    });
 }
-
 /**
  * This function updates an existing player's information, returning the
  * updated player's ID if successful, or a 404 status if the player doesn't
  * exist.
  */
-function updatePlayer(request: Request, response: Response, next: NextFunction): void {
+function updatePlayer(request, response, next) {
     db.oneOrNone('UPDATE Player SET email=${body.email}, name=${body.name} WHERE id=${params.id} RETURNING id', {
         params: request.params,
-        body: request.body as PlayerInput
+        body: request.body
     })
-        .then((data: { id: number } | null): void => {
-            returnDataOr404(response, data);
-        })
-        .catch((error: Error): void => {
-            next(error);
-        });
+        .then((data) => {
+        returnDataOr404(response, data);
+    })
+        .catch((error) => {
+        next(error);
+    });
 }
-
 /**
  * This function creates a new player in the database based on the provided
  * email and name, returning the newly created player's ID. The database is
  * assumed to automatically assign a unique ID using auto-increment.
  */
-function createPlayer(request: Request, response: Response, next: NextFunction): void {
-    db.one('INSERT INTO Player(email, name) VALUES (${email}, ${name}) RETURNING id',
-        request.body as PlayerInput
-    )
-        .then((data: { id: number }): void => {
-            // New players are always created, so returnDataOr404 isn't needed.
-            response.send(data);
-        })
-        .catch((error: Error): void => {
-            next(error);
-        });
+function createPlayer(request, response, next) {
+    db.one('INSERT INTO Player(email, name) VALUES (${email}, ${name}) RETURNING id', request.body)
+        .then((data) => {
+        // New players are always created, so returnDataOr404 isn't needed.
+        response.send(data);
+    })
+        .catch((error) => {
+        next(error);
+    });
 }
-
 /**
  * This function deletes an existing player based on ID.
  *
@@ -197,89 +163,74 @@ function createPlayer(request: Request, response: Response, next: NextFunction):
  * are marked as archived/deleted rather than actually deleting them. This helps
  * support data recovery and audit trails.
  */
-function deletePlayer(request: Request, response: Response, next: NextFunction): void {
-    db.tx((t: pgPromise.ITask<{}>) => {
+function deletePlayer(request, response, next) {
+    db.tx((t) => {
         return t.none('DELETE FROM PlayerGame WHERE playerID=${id}', request.params)
             .then(() => {
-                return t.oneOrNone('DELETE FROM Player WHERE id=${id} RETURNING id', request.params);
-            });
+            return t.oneOrNone('DELETE FROM Player WHERE id=${id} RETURNING id', request.params);
+        });
     })
-        .then((data: { id: number } | null): void => {
-            returnDataOr404(response, data);
-        })
-        .catch((error: Error): void => {
-            next(error);
-        });
+        .then((data) => {
+        returnDataOr404(response, data);
+    })
+        .catch((error) => {
+        next(error);
+    });
 }
-
-
-
-
 // Homework 3 Functions
-function readGames(_request: Request, response: Response, next: NextFunction): void {
+function readGames(_request, response, next) {
     db.manyOrNone('SELECT * FROM Game')
-        .then((data: MonopolyGame[]): void => {
-            // data is a list, never null, so returnDataOr404 isn't needed.
-            response.send(data);
-        })
-        .catch((error: Error): void => {
-            next(error);
-        });
+        .then((data) => {
+        // data is a list, never null, so returnDataOr404 isn't needed.
+        response.send(data);
+    })
+        .catch((error) => {
+        next(error);
+    });
 }
-
-function readGame(request: Request, response: Response, next: NextFunction): void {
+function readGame(request, response, next) {
     db.oneOrNone('SELECT * FROM Game WHERE id=${id}', request.params)
-        .then((data: Player | null): void => {
-            returnDataOr404(response, data);
-        })
-        .catch((error: Error): void => {
-            next(error);
-        });
+        .then((data) => {
+        returnDataOr404(response, data);
+    })
+        .catch((error) => {
+        next(error);
+    });
 }
-
-function deleteGame(request: Request, response: Response, next: NextFunction): void {
-    db.tx((t: pgPromise.ITask<{}>) => {
+function deleteGame(request, response, next) {
+    db.tx((t) => {
         return t.none('DELETE FROM PlayerGame WHERE gameID=${id}', request.params)
             .then(() => {
-                return t.oneOrNone('DELETE FROM Game WHERE id=${id} RETURNING id', request.params);
-            });
-    })
-        .then((data: { id: number } | null): void => {
-            returnDataOr404(response, data);
-        })
-        .catch((error: Error): void => {
-            next(error);
+            return t.oneOrNone('DELETE FROM Game WHERE id=${id} RETURNING id', request.params);
         });
-
+    })
+        .then((data) => {
+        returnDataOr404(response, data);
+    })
+        .catch((error) => {
+        next(error);
+    });
 }
-
-
-
-
-
-/* 
+/*
 PROJECT ROUTES
 */
 // Get all adventures
-function readAdventures(request: Request, response: Response, next: NextFunction): void {
+function readAdventures(request, response, next) {
     db.manyOrNone('SELECT * FROM Adventure')
-        .then((data: any[]): void => {
-            response.send(data);
-        })
-        .catch((error: Error): void => {
-            next(error);
-        });
+        .then((data) => {
+        response.send(data);
+    })
+        .catch((error) => {
+        next(error);
+    });
 }
-
 // Get all adventures in region 
-function readAdventuresByRegion(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone(
-        'SELECT * FROM Adventure WHERE regionID=${id}'
-        , request.params)
-        .then((data: any[]): void => {
-            response.send(data);
-        })
-        .catch((error: Error): void => {
-            next(error);
-        });
+function readAdventuresByRegion(request, response, next) {
+    db.manyOrNone('SELECT * FROM Adventure WHERE regionID=${id}', request.params)
+        .then((data) => {
+        response.send(data);
+    })
+        .catch((error) => {
+        next(error);
+    });
 }
