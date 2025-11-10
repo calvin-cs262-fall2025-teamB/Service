@@ -36,9 +36,9 @@
  * @date: Fall, 2025 (updated to JS->TS, Node version, and master->main repo)
  */
 
-import dotenv = require('dotenv');
-import express = require('express');
-import pgPromise = require('pg-promise');
+import dotenv from 'dotenv';
+import express from 'express';
+import pgPromise from 'pg-promise';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -49,15 +49,6 @@ import type {
     Player, 
     PlayerInput, 
     MonopolyGame, 
-    Adventurer, 
-    AdventurerInput, 
-    Adventure, 
-    Region, 
-    Token,
-    CompletedAdventure,
-    AdventureInProgress,
-    CollectedToken,
-    Landmark
 } from './types';
 
 // Set up the database
@@ -198,7 +189,7 @@ function createPlayer(request: Request, response: Response, next: NextFunction):
  * support data recovery and audit trails.
  */
 function deletePlayer(request: Request, response: Response, next: NextFunction): void {
-    db.tx((t: pgPromise.ITask<{}>) => {
+    db.tx((t) => {
         return t.none('DELETE FROM PlayerGame WHERE playerID=${id}', request.params)
             .then(() => {
                 return t.oneOrNone('DELETE FROM Player WHERE id=${id} RETURNING id', request.params);
@@ -238,7 +229,7 @@ function readGame(request: Request, response: Response, next: NextFunction): voi
 }
 
 function deleteGame(request: Request, response: Response, next: NextFunction): void {
-    db.tx((t: pgPromise.ITask<{}>) => {
+    db.tx((t) => {
         return t.none('DELETE FROM PlayerGame WHERE gameID=${id}', request.params)
             .then(() => {
                 return t.oneOrNone('DELETE FROM Game WHERE id=${id} RETURNING id', request.params);
