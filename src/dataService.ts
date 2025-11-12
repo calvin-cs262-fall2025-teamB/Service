@@ -72,14 +72,8 @@ const router = express.Router();
 
 router.use(express.json());
 
-// Add error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    console.error('Error:', err.message);
-    console.error('Stack:', err.stack);
-    res.status(500).json({ error: 'Internal Server Error', message: err.message });
-});
-
 router.get('/', readHello);
+router.get('/test', testEndpoint);
 // router.get('/players', readPlayers);
 // router.get('/players/:id', readPlayer);
 // router.put('/players/:id', updatePlayer);
@@ -97,6 +91,16 @@ router.get('/adventuresInRegion/:id', readAdventuresByRegion);
 
 
 app.use(router);
+
+// Add error handling middleware AFTER routes
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    console.error('Error occurred:', err.message);
+    console.error('Stack trace:', err.stack);
+    res.status(500).json({ 
+        error: 'Internal Server Error', 
+        message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    });
+});
 
 app.listen(port, (): void => {
     console.log(`Listening on port ${port}`);
@@ -119,15 +123,47 @@ function returnDataOr404(response: Response, data: unknown): void {
  * This endpoint returns a simple hello-world message, serving as a basic
  * health check and welcome message for the API.
  */
-function readHello(_request: Request, response: Response): void {
-    console.log('Hello endpoint called');
-    console.log('Environment check:');
-    console.log('DB_SERVER:', process.env.DB_SERVER ? 'Set' : 'Missing');
-    console.log('DB_DATABASE:', process.env.DB_DATABASE ? 'Set' : 'Missing'); 
-    console.log('DB_USER:', process.env.DB_USER ? 'Set' : 'Missing');
-    console.log('PORT:', process.env.PORT);
-    
-    response.send('Hello, CS 262 Adventure Game service!');
+function readHello(_request: Request, response: Response, next: NextFunction): void {
+    try {
+        console.log('Hello endpoint called');
+        console.log('Environment check:');
+        console.log('DB_SERVER:', process.env.DB_SERVER ? 'Set' : 'Missing');
+        console.log('DB_DATABASE:', process.env.DB_DATABASE ? 'Set' : 'Missing'); 
+        console.log('DB_USER:', process.env.DB_USER ? 'Set' : 'Missing');
+        console.log('PORT:', process.env.PORT);
+        console.log('NODE_ENV:', process.env.NODE_ENV);
+        
+        response.json({
+            message: 'Hello, CS 262 Adventure Game service!',
+            status: 'Service is running',
+            timestamp: new Date().toISOString(),
+            environment: {
+                dbServerSet: !!process.env.DB_SERVER,
+                dbDatabaseSet: !!process.env.DB_DATABASE,
+                dbUserSet: !!process.env.DB_USER,
+                port: process.env.PORT || 3000,
+                nodeEnv: process.env.NODE_ENV || 'development'
+            }
+        });
+    } catch (error) {
+        console.error('Error in readHello:', error);
+        next(error);
+    }
+}
+
+/**
+ * Simple test endpoint that doesn't require database access
+ */
+function testEndpoint(_request: Request, response: Response, next: NextFunction): void {
+    try {
+        response.json({
+            message: 'Test endpoint working',
+            timestamp: new Date().toISOString(),
+            status: 'OK'
+        });
+    } catch (error) {
+        next(error);
+    }
 }
 
 // // CRUD functions
