@@ -36,39 +36,61 @@
  * @date: Summer, 2020
  * @date: Fall, 2025 (updated to JS->TS, Node version, and master->main repo)
  */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const dotenv = require("dotenv");
-const express = require("express");
-const pgPromise = require("pg-promise");
+const dotenv_1 = __importDefault(require("dotenv"));
+const express_1 = __importDefault(require("express"));
+const pg_promise_1 = __importDefault(require("pg-promise"));
 // Load environment variables from .env file
-dotenv.config();
+dotenv_1.default.config();
 // Set up the database
-const db = pgPromise()({
+const db = (0, pg_promise_1.default)()({
     host: process.env.DB_SERVER,
     port: parseInt(process.env.DB_PORT) || 5432,
     database: process.env.DB_DATABASE,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
 });
+// Add database connection test
+db.connect()
+    .then((obj) => {
+    console.log('Database connection successful');
+    obj.done(); // success, release connection
+})
+    .catch((error) => {
+    console.log('Database connection failed:', error.message);
+});
 // Configure the server and its routes
-const app = express();
+const app = (0, express_1.default)();
 const port = parseInt(process.env.PORT) || 3000;
-const router = express.Router();
-router.use(express.json());
+const router = express_1.default.Router();
+router.use(express_1.default.json());
 router.get('/', readHello);
-router.get('/players', readPlayers);
-router.get('/players/:id', readPlayer);
-router.put('/players/:id', updatePlayer);
-router.post('/players', createPlayer);
-router.delete('/players/:id', deletePlayer);
-// Homework 3 Endpoints
-router.get('/games', readGames);
-router.get('/games/:id', readGame);
-router.delete('/games/:id', deleteGame);
+router.get('/test', testEndpoint);
+// router.get('/players', readPlayers);
+// router.get('/players/:id', readPlayer);
+// router.put('/players/:id', updatePlayer);
+// router.post('/players', createPlayer);
+// router.delete('/players/:id', deletePlayer);
+// // Homework 3 Endpoints
+// router.get('/games', readGames);
+// router.get('/games/:id', readGame);
+// router.delete('/games/:id', deleteGame);
 // Project routes (ignore for Lab/HW)
 router.get('/adventures', readAdventures);
 router.get('/adventuresInRegion/:id', readAdventuresByRegion);
 app.use(router);
+// Add error handling middleware AFTER routes
+app.use((err, req, res, next) => {
+    console.error('Error occurred:', err.message);
+    console.error('Stack trace:', err.stack);
+    res.status(500).json({
+        error: 'Internal Server Error',
+        message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    });
+});
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 });
@@ -89,128 +111,169 @@ function returnDataOr404(response, data) {
  * This endpoint returns a simple hello-world message, serving as a basic
  * health check and welcome message for the API.
  */
-function readHello(_request, response) {
-    response.send('Hello, CS 262 Adventure Game service!');
-}
-// CRUD functions
-/**
- * Retrieves all players from the database.
- */
-function readPlayers(_request, response, next) {
-    db.manyOrNone('SELECT * FROM Player')
-        .then((data) => {
-        // data is a list, never null, so returnDataOr404 isn't needed.
-        response.send(data);
-    })
-        .catch((error) => {
-        next(error);
-    });
-}
-/**
- * Retrieves a specific player by ID.
- */
-function readPlayer(request, response, next) {
-    db.oneOrNone('SELECT * FROM Player WHERE id=${id}', request.params)
-        .then((data) => {
-        returnDataOr404(response, data);
-    })
-        .catch((error) => {
-        next(error);
-    });
-}
-/**
- * This function updates an existing player's information, returning the
- * updated player's ID if successful, or a 404 status if the player doesn't
- * exist.
- */
-function updatePlayer(request, response, next) {
-    db.oneOrNone('UPDATE Player SET email=${body.email}, name=${body.name} WHERE id=${params.id} RETURNING id', {
-        params: request.params,
-        body: request.body
-    })
-        .then((data) => {
-        returnDataOr404(response, data);
-    })
-        .catch((error) => {
-        next(error);
-    });
-}
-/**
- * This function creates a new player in the database based on the provided
- * email and name, returning the newly created player's ID. The database is
- * assumed to automatically assign a unique ID using auto-increment.
- */
-function createPlayer(request, response, next) {
-    db.one('INSERT INTO Player(email, name) VALUES (${email}, ${name}) RETURNING id', request.body)
-        .then((data) => {
-        // New players are always created, so returnDataOr404 isn't needed.
-        response.send(data);
-    })
-        .catch((error) => {
-        next(error);
-    });
-}
-/**
- * This function deletes an existing player based on ID.
- *
- * Deleting a player requires cascading deletion of PlayerGame records first to
- * maintain referential integrity. This function uses a transaction (`tx()`) to
- * ensure that both the PlayerGame records and the Player record are deleted
- * atomically (i.e., either both operations succeed or both fail together).
- *
- * This function performs a "hard" delete that actually removes records from the
- * database. Production systems generally to use "soft" deletes in which records
- * are marked as archived/deleted rather than actually deleting them. This helps
- * support data recovery and audit trails.
- */
-function deletePlayer(request, response, next) {
-    db.tx((t) => {
-        return t.none('DELETE FROM PlayerGame WHERE playerID=${id}', request.params)
-            .then(() => {
-            return t.oneOrNone('DELETE FROM Player WHERE id=${id} RETURNING id', request.params);
+function readHello(_request, response, next) {
+    try {
+        console.log('Hello endpoint called');
+        console.log('Environment check:');
+        console.log('DB_SERVER:', process.env.DB_SERVER ? 'Set' : 'Missing');
+        console.log('DB_DATABASE:', process.env.DB_DATABASE ? 'Set' : 'Missing');
+        console.log('DB_USER:', process.env.DB_USER ? 'Set' : 'Missing');
+        console.log('PORT:', process.env.PORT);
+        console.log('NODE_ENV:', process.env.NODE_ENV);
+        response.json({
+            message: 'Hello, CS 262 Adventure Game service!',
+            status: 'Service is running',
+            timestamp: new Date().toISOString(),
+            environment: {
+                dbServerSet: !!process.env.DB_SERVER,
+                dbDatabaseSet: !!process.env.DB_DATABASE,
+                dbUserSet: !!process.env.DB_USER,
+                port: process.env.PORT || 3000,
+                nodeEnv: process.env.NODE_ENV || 'development'
+            }
         });
-    })
-        .then((data) => {
-        returnDataOr404(response, data);
-    })
-        .catch((error) => {
+    }
+    catch (error) {
+        console.error('Error in readHello:', error);
         next(error);
-    });
+    }
 }
-// Homework 3 Functions
-function readGames(_request, response, next) {
-    db.manyOrNone('SELECT * FROM Game')
-        .then((data) => {
-        // data is a list, never null, so returnDataOr404 isn't needed.
-        response.send(data);
-    })
-        .catch((error) => {
-        next(error);
-    });
-}
-function readGame(request, response, next) {
-    db.oneOrNone('SELECT * FROM Game WHERE id=${id}', request.params)
-        .then((data) => {
-        returnDataOr404(response, data);
-    })
-        .catch((error) => {
-        next(error);
-    });
-}
-function deleteGame(request, response, next) {
-    db.tx((t) => {
-        return t.none('DELETE FROM PlayerGame WHERE gameID=${id}', request.params)
-            .then(() => {
-            return t.oneOrNone('DELETE FROM Game WHERE id=${id} RETURNING id', request.params);
+/**
+ * Simple test endpoint that doesn't require database access
+ */
+function testEndpoint(_request, response, next) {
+    try {
+        response.json({
+            message: 'Test endpoint working',
+            timestamp: new Date().toISOString(),
+            status: 'OK'
         });
-    })
-        .then((data) => {
-        returnDataOr404(response, data);
-    })
-        .catch((error) => {
+    }
+    catch (error) {
         next(error);
-    });
+    }
 }
+// // CRUD functions
+// /**
+//  * Retrieves all players from the database.
+//  */
+// function readPlayers(_request: Request, response: Response, next: NextFunction): void {
+//     db.manyOrNone('SELECT * FROM Player')
+//         .then((data: Player[]): void => {
+//             // data is a list, never null, so returnDataOr404 isn't needed.
+//             response.send(data);
+//         })
+//         .catch((error: Error): void => {
+//             next(error);
+//         });
+// }
+// /**
+//  * Retrieves a specific player by ID.
+//  */
+// function readPlayer(request: Request, response: Response, next: NextFunction): void {
+//     db.oneOrNone('SELECT * FROM Player WHERE id=${id}', request.params)
+//         .then((data: Player | null): void => {
+//             returnDataOr404(response, data);
+//         })
+//         .catch((error: Error): void => {
+//             next(error);
+//         });
+// }
+// /**
+//  * This function updates an existing player's information, returning the
+//  * updated player's ID if successful, or a 404 status if the player doesn't
+//  * exist.
+//  */
+// function updatePlayer(request: Request, response: Response, next: NextFunction): void {
+//     db.oneOrNone('UPDATE Player SET email=${body.email}, name=${body.name} WHERE id=${params.id} RETURNING id', {
+//         params: request.params,
+//         body: request.body as PlayerInput
+//     })
+//         .then((data: { id: number } | null): void => {
+//             returnDataOr404(response, data);
+//         })
+//         .catch((error: Error): void => {
+//             next(error);
+//         });
+// }
+// /**
+//  * This function creates a new player in the database based on the provided
+//  * email and name, returning the newly created player's ID. The database is
+//  * assumed to automatically assign a unique ID using auto-increment.
+//  */
+// function createPlayer(request: Request, response: Response, next: NextFunction): void {
+//     db.one('INSERT INTO Player(email, name) VALUES (${email}, ${name}) RETURNING id',
+//         request.body as PlayerInput
+//     )
+//         .then((data: { id: number }): void => {
+//             // New players are always created, so returnDataOr404 isn't needed.
+//             response.send(data);
+//         })
+//         .catch((error: Error): void => {
+//             next(error);
+//         });
+// }
+// /**
+//  * This function deletes an existing player based on ID.
+//  *
+//  * Deleting a player requires cascading deletion of PlayerGame records first to
+//  * maintain referential integrity. This function uses a transaction (`tx()`) to
+//  * ensure that both the PlayerGame records and the Player record are deleted
+//  * atomically (i.e., either both operations succeed or both fail together).
+//  *
+//  * This function performs a "hard" delete that actually removes records from the
+//  * database. Production systems generally to use "soft" deletes in which records
+//  * are marked as archived/deleted rather than actually deleting them. This helps
+//  * support data recovery and audit trails.
+//  */
+// function deletePlayer(request: Request, response: Response, next: NextFunction): void {
+//     db.tx((t) => {
+//         return t.none('DELETE FROM PlayerGame WHERE playerID=${id}', request.params)
+//             .then(() => {
+//                 return t.oneOrNone('DELETE FROM Player WHERE id=${id} RETURNING id', request.params);
+//             });
+//     })
+//         .then((data: { id: number } | null): void => {
+//             returnDataOr404(response, data);
+//         })
+//         .catch((error: Error): void => {
+//             next(error);
+//         });
+// }
+// // Homework 3 Functions
+// function readGames(_request: Request, response: Response, next: NextFunction): void {
+//     db.manyOrNone('SELECT * FROM Game')
+//         .then((data: MonopolyGame[]): void => {
+//             // data is a list, never null, so returnDataOr404 isn't needed.
+//             response.send(data);
+//         })
+//         .catch((error: Error): void => {
+//             next(error);
+//         });
+// }
+// function readGame(request: Request, response: Response, next: NextFunction): void {
+//     db.oneOrNone('SELECT * FROM Game WHERE id=${id}', request.params)
+//         .then((data: Player | null): void => {
+//             returnDataOr404(response, data);
+//         })
+//         .catch((error: Error): void => {
+//             next(error);
+//         });
+// }
+// function deleteGame(request: Request, response: Response, next: NextFunction): void {
+//     db.tx((t) => {
+//         return t.none('DELETE FROM PlayerGame WHERE gameID=${id}', request.params)
+//             .then(() => {
+//                 return t.oneOrNone('DELETE FROM Game WHERE id=${id} RETURNING id', request.params);
+//             });
+//     })
+//         .then((data: { id: number } | null): void => {
+//             returnDataOr404(response, data);
+//         })
+//         .catch((error: Error): void => {
+//             next(error);
+//         });
+// }
 /*
 PROJECT ROUTES
 */
