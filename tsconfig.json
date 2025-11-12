@@ -11,7 +11,9 @@
     "resolveJsonModule": true,
     "declaration": false,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "sourceMap": false,
+    "removeComments": true
   },
   "include": [
     "src/**/*"
