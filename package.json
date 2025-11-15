@@ -1,27 +1,26 @@
 {
-    "name": "adventure-game-service",
+    "name": "cs262-webservice",
     "version": "1.0.0",
-    "description": "Adventure Game Web Service",
-    "main": "dist/dataService.js",
-    "author": "Team B",
+    "description": "Data-based web service for CS 262 Beautiful Guys project",
+    "main": "src/dataService.ts",
+    "type": "module",
+    "author": "kvlinden",
     "license": "ISC",
     "engines": {
-        "node": "20.x"
+        "node": "22.x"
     },
     "scripts": {
-        "build": "tsc",
-        "postinstall": "npm run build",
-        "start": "node dist/dataService.js",
-        "dev": "node --experimental-strip-types src/dataService.ts",
-        "direct": "node --experimental-strip-types src/dataService.ts",
+        "start": "node --experimental-strip-types src/dataService.ts",
+        "direct": "node --experimental-strip-types src/monopolyDirect.ts",
         "type-check": "tsc --noEmit",
         "lint": "eslint ."
     },
     "dependencies": {
+        "@types/cors": "^2.8.19",
+        "cors": "^2.8.5",
         "dotenv": "^17.2.3",
-        "express": "^4.18.2",
-        "pg-promise": "^11.5.4",
-        "typescript": "^5.3.0"
+        "express": "5.x",
+        "pg-promise": "11.x"
     },
     "devDependencies": {
         "@types/express": "^4.17.21",
