@@ -74,20 +74,19 @@ router.use(express.json());
 
 router.get('/', readHello);
 router.get('/test', testEndpoint);
-// router.get('/players', readPlayers);
-// router.get('/players/:id', readPlayer);
-// router.put('/players/:id', updatePlayer);
-// router.post('/players', createPlayer);
-// router.delete('/players/:id', deletePlayer);
 
-// // Homework 3 Endpoints
-// router.get('/games', readGames);
-// router.get('/games/:id', readGame);
-// router.delete('/games/:id', deleteGame);
-
-// Project routes (ignore for Lab/HW)
+/* Homepage Routes */
 router.get('/adventures', readAdventures);
 router.get('/adventuresInRegion/:id', readAdventuresByRegion);
+/*  Profile Routes  */
+router.get('/adventurer/:id', readAdventurer);
+router.get('/AdventuresCompleted/:id', readAdventuresCompletedByAdventurer)
+/* Create Adventure Routes */
+router.get('/regions', readRegions);
+router.get('/landmarks/:id', readLandmarksInRegion)
+/* Playing Adventure Routes */
+// Use landmarks/:id route to get landmarks in region
+router.get('/tokens/:id', readTokensInAdventure)
 
 
 app.use(router);
@@ -107,43 +106,30 @@ app.listen(port, (): void => {
 });
 
 /**
- * This utility function standardizes the response pattern for database queries,
- * returning the data using the given response, or a 404 status for null data
- * (e.g., when a record is not found).
- */
-function returnDataOr404(response: Response, data: unknown): void {
-    if (data == null) {
-        response.sendStatus(404);
-    } else {
-        response.send(data);
-    }
-}
-
-/**
  * This endpoint returns a simple hello-world message, serving as a basic
  * health check and welcome message for the API.
  */
 function readHello(_request: Request, response: Response, next: NextFunction): void {
     try {
         console.log('Hello endpoint called');
-        console.log('Environment check:');
-        console.log('DB_SERVER:', process.env.DB_SERVER ? 'Set' : 'Missing');
-        console.log('DB_DATABASE:', process.env.DB_DATABASE ? 'Set' : 'Missing'); 
-        console.log('DB_USER:', process.env.DB_USER ? 'Set' : 'Missing');
-        console.log('PORT:', process.env.PORT);
-        console.log('NODE_ENV:', process.env.NODE_ENV);
+        // console.log('Environment check:');
+        // console.log('DB_SERVER:', process.env.DB_SERVER ? 'Set' : 'Missing');
+        // console.log('DB_DATABASE:', process.env.DB_DATABASE ? 'Set' : 'Missing'); 
+        // console.log('DB_USER:', process.env.DB_USER ? 'Set' : 'Missing');
+        // console.log('PORT:', process.env.PORT);
+        // console.log('NODE_ENV:', process.env.NODE_ENV);
         
         response.json({
             message: 'Hello, CS 262 Adventure Game service!',
             status: 'Service is running',
             timestamp: new Date().toISOString(),
-            environment: {
-                dbServerSet: !!process.env.DB_SERVER,
-                dbDatabaseSet: !!process.env.DB_DATABASE,
-                dbUserSet: !!process.env.DB_USER,
-                port: process.env.PORT || 3000,
-                nodeEnv: process.env.NODE_ENV || 'development'
-            }
+            // environment: {
+            //     dbServerSet: !!process.env.DB_SERVER,
+            //     dbDatabaseSet: !!process.env.DB_DATABASE,
+            //     dbUserSet: !!process.env.DB_USER,
+            //     port: process.env.PORT || 3000,
+            //     nodeEnv: process.env.NODE_ENV || 'development'
+            // }
         });
     } catch (error) {
         console.error('Error in readHello:', error);
@@ -166,8 +152,105 @@ function testEndpoint(_request: Request, response: Response, next: NextFunction)
     }
 }
 
-// // CRUD functions
+/* Home Page */
+// Get all adventures
+function readAdventures(request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone('SELECT * FROM Adventure')
+        .then((data: any[]): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
 
+// Get all adventures in region 
+function readAdventuresByRegion(request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone(
+        'SELECT * FROM Adventure WHERE regionID=${id}'
+        , request.params)
+        .then((data: any[]): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+/*  Profile Page  */
+function readAdventurer(request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone(
+        'SELECT * FROM Adventurer WHERE ID=${id}'
+        , request.params)
+        .then((data: any[]): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+function readAdventuresCompletedByAdventurer(request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone(
+        'SELECT * FROM CompletedAdventure WHERE adventurerID=${id}'
+        , request.params)
+        .then((data: any[]): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+/* Create Adventure */
+function readRegions(request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone('SELECT * FROM Region')
+        .then((data: any[]): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function readLandmarksInRegion(request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone(
+        'SELECT * FROM Landmark WHERE regionID=${id}'
+        , request.params)
+        .then((data: any[]): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+/* Play Adventure */
+function readTokensInAdventure(request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone('SELECT * FROM Token WHERE adventureID=${id}'
+        , request.params)
+        .then((data: any[]): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+
+// /**
+//  * This utility function standardizes the response pattern for database queries,
+//  * returning the data using the given response, or a 404 status for null data
+//  * (e.g., when a record is not found).
+//  */
+// function returnDataOr404(response: Response, data: unknown): void {
+//     if (data == null) {
+//         response.sendStatus(404);
+//     } else {
+//         response.send(data);
+//     }
+// }
+
+// // CRUD functions
 // /**
 //  * Retrieves all players from the database.
 //  */
@@ -299,34 +382,3 @@ function testEndpoint(_request: Request, response: Response, next: NextFunction)
 //         });
 
 // }
-
-
-
-
-
-/* 
-PROJECT ROUTES
-*/
-// Get all adventures
-function readAdventures(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone('SELECT * FROM Adventure')
-        .then((data: any[]): void => {
-            response.send(data);
-        })
-        .catch((error: Error): void => {
-            next(error);
-        });
-}
-
-// Get all adventures in region 
-function readAdventuresByRegion(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone(
-        'SELECT * FROM Adventure WHERE regionID=${id}'
-        , request.params)
-        .then((data: any[]): void => {
-            response.send(data);
-        })
-        .catch((error: Error): void => {
-            next(error);
-        });
-}
