@@ -2,8 +2,8 @@
 -- This file contains comprehensive test data for all tables
 
 -- Clear existing data (in dependency order)
-DELETE FROM CollectedToken;
-DELETE FROM AdventureInProgress;
+-- DELETE FROM CollectedToken;
+-- DELETE FROM AdventureInProgress;
 DELETE FROM CompletedAdventure;
 DELETE FROM Token;
 DELETE FROM Adventure;
@@ -18,8 +18,8 @@ ALTER SEQUENCE landmark_id_seq RESTART WITH 1;
 ALTER SEQUENCE adventure_id_seq RESTART WITH 1;
 ALTER SEQUENCE token_id_seq RESTART WITH 1;
 ALTER SEQUENCE completedadventure_id_seq RESTART WITH 1;
-ALTER SEQUENCE adventureinprogress_id_seq RESTART WITH 1;
-ALTER SEQUENCE collectedtoken_id_seq RESTART WITH 1;
+-- ALTER SEQUENCE adventureinprogress_id_seq RESTART WITH 1;
+-- ALTER SEQUENCE collectedtoken_id_seq RESTART WITH 1;
 
 -- Insert Adventurers (15 users)
 INSERT INTO Adventurer(username, password, profilePicture) VALUES 
@@ -366,131 +366,131 @@ INSERT INTO CompletedAdventure(adventurerID, adventureID, completionDate, comple
     (14, 6, '2024-10-31', '00:52:25'),
     (15, 24, '2024-11-01', '00:38:10');
 
--- Insert Adventures In Progress (users who started but haven't finished adventures)
-INSERT INTO AdventureInProgress(adventurerID, adventureID, dateStarted, lastUpdated, tokensCollected) VALUES 
-    -- User 1 has started but not completed some adventures
-    (1, 7, '2024-10-28 14:30:00', '2024-10-30 16:45:00', 2),  -- Heritage Time Travel (4 tokens total)
-    (1, 13, '2024-10-30 09:15:00', '2024-11-01 10:30:00', 3), -- Mountain Summit Challenge (6 tokens total)
+-- -- Insert Adventures In Progress (users who started but haven't finished adventures)
+-- INSERT INTO AdventureInProgress(adventurerID, adventureID, dateStarted, lastUpdated, tokensCollected) VALUES 
+--     -- User 1 has started but not completed some adventures
+--     (1, 7, '2024-10-28 14:30:00', '2024-10-30 16:45:00', 2),  -- Heritage Time Travel (4 tokens total)
+--     (1, 13, '2024-10-30 09:15:00', '2024-11-01 10:30:00', 3), -- Mountain Summit Challenge (6 tokens total)
     
-    -- User 2 in progress
-    (2, 17, '2024-10-29 08:00:00', '2024-10-31 14:20:00', 5), -- Forest Survival Challenge (8 tokens total)
-    (2, 23, '2024-11-01 07:30:00', '2024-11-01 12:45:00', 4), -- Ultimate Adventure Challenge (10 tokens total)
+--     -- User 2 in progress
+--     (2, 17, '2024-10-29 08:00:00', '2024-10-31 14:20:00', 5), -- Forest Survival Challenge (8 tokens total)
+--     (2, 23, '2024-11-01 07:30:00', '2024-11-01 12:45:00', 4), -- Ultimate Adventure Challenge (10 tokens total)
     
-    -- User 3 in progress
-    (3, 18, '2024-10-31 11:00:00', '2024-11-01 15:30:00', 4), -- Complete Lakefront Adventure (7 tokens total)
-    (3, 11, '2024-10-30 16:00:00', '2024-10-31 09:15:00', 3), -- Garden Paradise Tour (4 tokens total)
+--     -- User 3 in progress
+--     (3, 18, '2024-10-31 11:00:00', '2024-11-01 15:30:00', 4), -- Complete Lakefront Adventure (7 tokens total)
+--     (3, 11, '2024-10-30 16:00:00', '2024-10-31 09:15:00', 3), -- Garden Paradise Tour (4 tokens total)
     
-    -- User 4 in progress
-    (4, 14, '2024-10-27 13:45:00', '2024-10-29 11:20:00', 3), -- Ultimate City Explorer (7 tokens total)
-    (4, 8, '2024-10-31 10:30:00', '2024-11-01 14:15:00', 2),  -- Science Explorer Challenge (5 tokens total)
+--     -- User 4 in progress
+--     (4, 14, '2024-10-27 13:45:00', '2024-10-29 11:20:00', 3), -- Ultimate City Explorer (7 tokens total)
+--     (4, 8, '2024-10-31 10:30:00', '2024-11-01 14:15:00', 2),  -- Science Explorer Challenge (5 tokens total)
     
-    -- User 5 in progress
-    (5, 12, '2024-10-28 15:20:00', '2024-10-30 17:45:00', 3), -- Urban Photography Walk (5 tokens total)
+--     -- User 5 in progress
+--     (5, 12, '2024-10-28 15:20:00', '2024-10-30 17:45:00', 3), -- Urban Photography Walk (5 tokens total)
     
-    -- User 6 in progress
-    (6, 19, '2024-10-29 12:00:00', '2024-10-31 16:30:00', 2), -- Multi-District Explorer (5 tokens total)
+--     -- User 6 in progress
+--     (6, 19, '2024-10-29 12:00:00', '2024-10-31 16:30:00', 2), -- Multi-District Explorer (5 tokens total)
     
-    -- User 7 in progress
-    (7, 9, '2024-10-30 08:45:00', '2024-11-01 11:20:00', 2),  -- Art Appreciation Quest (4 tokens total)
+--     -- User 7 in progress
+--     (7, 9, '2024-10-30 08:45:00', '2024-11-01 11:20:00', 2),  -- Art Appreciation Quest (4 tokens total)
     
-    -- User 8 in progress
-    (8, 15, '2024-10-29 14:15:00', '2024-11-01 09:30:00', 4), -- Nature Photography Marathon (6 tokens total)
+--     -- User 8 in progress
+--     (8, 15, '2024-10-29 14:15:00', '2024-11-01 09:30:00', 4), -- Nature Photography Marathon (6 tokens total)
     
-    -- User 9 in progress
-    (9, 16, '2024-10-28 11:30:00', '2024-10-30 13:45:00', 2), -- Academic Treasure Hunt (6 tokens total)
+--     -- User 9 in progress
+--     (9, 16, '2024-10-28 11:30:00', '2024-10-30 13:45:00', 2), -- Academic Treasure Hunt (6 tokens total)
     
-    -- User 10 in progress
-    (10, 10, '2024-10-31 09:00:00', '2024-11-01 12:15:00', 1), -- Athletic Achievement Hunt (4 tokens total)
+--     -- User 10 in progress
+--     (10, 10, '2024-10-31 09:00:00', '2024-11-01 12:15:00', 1), -- Athletic Achievement Hunt (4 tokens total)
     
-    -- User 11 in progress
-    (11, 20, '2024-10-30 16:45:00', '2024-11-01 08:30:00', 3), -- Science and Nature Combo (4 tokens total)
+--     -- User 11 in progress
+--     (11, 20, '2024-10-30 16:45:00', '2024-11-01 08:30:00', 3), -- Science and Nature Combo (4 tokens total)
     
-    -- User 12 in progress (just started)
-    (12, 1, '2024-11-01 13:00:00', '2024-11-01 13:00:00', 0),  -- Historic Downtown Walking Tour (3 tokens total)
+--     -- User 12 in progress (just started)
+--     (12, 1, '2024-11-01 13:00:00', '2024-11-01 13:00:00', 0),  -- Historic Downtown Walking Tour (3 tokens total)
     
-    -- User 13 in progress (almost done)
-    (13, 24, '2024-10-29 10:20:00', '2024-10-31 15:50:00', 2), -- Beginner Friendly Sampler (3 tokens total)
+--     -- User 13 in progress (almost done)
+--     (13, 24, '2024-10-29 10:20:00', '2024-10-31 15:50:00', 2), -- Beginner Friendly Sampler (3 tokens total)
     
-    -- User 14 in progress
-    (14, 21, '2024-10-30 07:15:00', '2024-11-01 11:45:00', 2), -- Art and History Journey (4 tokens total)
+--     -- User 14 in progress
+--     (14, 21, '2024-10-30 07:15:00', '2024-11-01 11:45:00', 2), -- Art and History Journey (4 tokens total)
     
-    -- User 15 in progress
-    (15, 22, '2024-10-31 14:30:00', '2024-11-01 16:20:00', 3); -- Sports and Recreation Tour (5 tokens total)
+--     -- User 15 in progress
+--     (15, 22, '2024-10-31 14:30:00', '2024-11-01 16:20:00', 3); -- Sports and Recreation Tour (5 tokens total)
 
--- Insert Collected Tokens (showing which specific tokens each user has found)
-INSERT INTO CollectedToken(adventureInProgressID, tokenID, collectedAt) VALUES 
-    -- User 1's Heritage Time Travel progress (Adventure 7, tokens 16-19)
-    (1, 16, '2024-10-28 15:15:00'), -- First token (tokenOrder 1)
-    (1, 17, '2024-10-30 16:30:00'), -- Second token (tokenOrder 2)
+-- -- Insert Collected Tokens (showing which specific tokens each user has found)
+-- INSERT INTO CollectedToken(adventureInProgressID, tokenID, collectedAt) VALUES 
+--     -- User 1's Heritage Time Travel progress (Adventure 7, tokens 16-19)
+--     (1, 16, '2024-10-28 15:15:00'), -- First token (tokenOrder 1)
+--     (1, 17, '2024-10-30 16:30:00'), -- Second token (tokenOrder 2)
     
-    -- User 1's Mountain Summit Challenge progress (Adventure 13, tokens 42-47)
-    (2, 42, '2024-10-30 09:45:00'), -- First token (tokenOrder 1)
-    (2, 43, '2024-10-30 11:20:00'), -- Second token (tokenOrder 2)
-    (2, 44, '2024-11-01 10:15:00'), -- Third token (tokenOrder 3)
+--     -- User 1's Mountain Summit Challenge progress (Adventure 13, tokens 42-47)
+--     (2, 42, '2024-10-30 09:45:00'), -- First token (tokenOrder 1)
+--     (2, 43, '2024-10-30 11:20:00'), -- Second token (tokenOrder 2)
+--     (2, 44, '2024-11-01 10:15:00'), -- Third token (tokenOrder 3)
     
-    -- User 2's Forest Survival Challenge progress (Adventure 17, tokens 67-74)
-    (3, 67, '2024-10-29 08:30:00'), -- First token (tokenOrder 1)
-    (3, 68, '2024-10-29 10:15:00'), -- Second token (tokenOrder 2)
-    (3, 69, '2024-10-30 09:45:00'), -- Third token (tokenOrder 3)
-    (3, 70, '2024-10-30 12:30:00'), -- Fourth token (tokenOrder 4)
-    (3, 71, '2024-10-31 14:00:00'), -- Fifth token (tokenOrder 5)
+--     -- User 2's Forest Survival Challenge progress (Adventure 17, tokens 67-74)
+--     (3, 67, '2024-10-29 08:30:00'), -- First token (tokenOrder 1)
+--     (3, 68, '2024-10-29 10:15:00'), -- Second token (tokenOrder 2)
+--     (3, 69, '2024-10-30 09:45:00'), -- Third token (tokenOrder 3)
+--     (3, 70, '2024-10-30 12:30:00'), -- Fourth token (tokenOrder 4)
+--     (3, 71, '2024-10-31 14:00:00'), -- Fifth token (tokenOrder 5)
     
-    -- User 2's Ultimate Adventure Challenge progress (Adventure 23, tokens 82-91)
-    (4, 82, '2024-11-01 08:00:00'), -- First token (tokenOrder 1)
-    (4, 83, '2024-11-01 09:30:00'), -- Second token (tokenOrder 2)
-    (4, 84, '2024-11-01 11:15:00'), -- Third token (tokenOrder 3)
-    (4, 85, '2024-11-01 12:30:00'), -- Fourth token (tokenOrder 4)
+--     -- User 2's Ultimate Adventure Challenge progress (Adventure 23, tokens 82-91)
+--     (4, 82, '2024-11-01 08:00:00'), -- First token (tokenOrder 1)
+--     (4, 83, '2024-11-01 09:30:00'), -- Second token (tokenOrder 2)
+--     (4, 84, '2024-11-01 11:15:00'), -- Third token (tokenOrder 3)
+--     (4, 85, '2024-11-01 12:30:00'), -- Fourth token (tokenOrder 4)
     
-    -- User 3's Complete Lakefront Adventure progress (Adventure 18, tokens 75-81)
-    (5, 75, '2024-10-31 11:30:00'), -- First token (tokenOrder 1)
-    (5, 76, '2024-10-31 13:15:00'), -- Second token (tokenOrder 2)
-    (5, 77, '2024-11-01 10:45:00'), -- Third token (tokenOrder 3)
-    (5, 78, '2024-11-01 15:15:00'), -- Fourth token (tokenOrder 4)
+--     -- User 3's Complete Lakefront Adventure progress (Adventure 18, tokens 75-81)
+--     (5, 75, '2024-10-31 11:30:00'), -- First token (tokenOrder 1)
+--     (5, 76, '2024-10-31 13:15:00'), -- Second token (tokenOrder 2)
+--     (5, 77, '2024-11-01 10:45:00'), -- Third token (tokenOrder 3)
+--     (5, 78, '2024-11-01 15:15:00'), -- Fourth token (tokenOrder 4)
     
-    -- User 3's Garden Paradise Tour progress (Adventure 11, tokens 33-36)
-    (6, 33, '2024-10-30 16:30:00'), -- First token (tokenOrder 1)
-    (6, 34, '2024-10-30 17:45:00'), -- Second token (tokenOrder 2)
-    (6, 35, '2024-10-31 09:00:00'), -- Third token (tokenOrder 3)
+--     -- User 3's Garden Paradise Tour progress (Adventure 11, tokens 33-36)
+--     (6, 33, '2024-10-30 16:30:00'), -- First token (tokenOrder 1)
+--     (6, 34, '2024-10-30 17:45:00'), -- Second token (tokenOrder 2)
+--     (6, 35, '2024-10-31 09:00:00'), -- Third token (tokenOrder 3)
     
-    -- User 4's Ultimate City Explorer progress (Adventure 14, tokens 48-54)
-    (7, 48, '2024-10-27 14:15:00'), -- First token (tokenOrder 1)
-    (7, 49, '2024-10-28 10:30:00'), -- Second token (tokenOrder 2)
-    (7, 50, '2024-10-29 11:00:00'), -- Third token (tokenOrder 3)
+--     -- User 4's Ultimate City Explorer progress (Adventure 14, tokens 48-54)
+--     (7, 48, '2024-10-27 14:15:00'), -- First token (tokenOrder 1)
+--     (7, 49, '2024-10-28 10:30:00'), -- Second token (tokenOrder 2)
+--     (7, 50, '2024-10-29 11:00:00'), -- Third token (tokenOrder 3)
     
-    -- User 4's Science Explorer Challenge progress (Adventure 8, tokens 20-24)
-    (8, 20, '2024-10-31 11:00:00'), -- First token (tokenOrder 1)
-    (8, 21, '2024-11-01 14:00:00'), -- Second token (tokenOrder 2)
+--     -- User 4's Science Explorer Challenge progress (Adventure 8, tokens 20-24)
+--     (8, 20, '2024-10-31 11:00:00'), -- First token (tokenOrder 1)
+--     (8, 21, '2024-11-01 14:00:00'), -- Second token (tokenOrder 2)
     
-    -- User 5's Urban Photography Walk progress (Adventure 12, tokens 37-41)
-    (9, 37, '2024-10-28 15:45:00'), -- First token (tokenOrder 1)
-    (9, 38, '2024-10-29 11:30:00'), -- Second token (tokenOrder 2)
-    (9, 39, '2024-10-30 17:30:00'), -- Third token (tokenOrder 3)
+--     -- User 5's Urban Photography Walk progress (Adventure 12, tokens 37-41)
+--     (9, 37, '2024-10-28 15:45:00'), -- First token (tokenOrder 1)
+--     (9, 38, '2024-10-29 11:30:00'), -- Second token (tokenOrder 2)
+--     (9, 39, '2024-10-30 17:30:00'), -- Third token (tokenOrder 3)
     
-    -- User 7's Art Appreciation Quest progress (Adventure 9, tokens 25-28)
-    (11, 25, '2024-10-30 09:15:00'), -- First token (tokenOrder 1)
-    (11, 26, '2024-11-01 11:00:00'), -- Second token (tokenOrder 2)
+--     -- User 7's Art Appreciation Quest progress (Adventure 9, tokens 25-28)
+--     (11, 25, '2024-10-30 09:15:00'), -- First token (tokenOrder 1)
+--     (11, 26, '2024-11-01 11:00:00'), -- Second token (tokenOrder 2)
     
-    -- User 8's Nature Photography Marathon progress (Adventure 15, tokens 55-60)
-    (12, 55, '2024-10-29 14:45:00'), -- First token (tokenOrder 1)
-    (12, 56, '2024-10-30 10:20:00'), -- Second token (tokenOrder 2)
-    (12, 57, '2024-10-31 13:15:00'), -- Third token (tokenOrder 3)
-    (12, 58, '2024-11-01 09:15:00'), -- Fourth token (tokenOrder 4)
+--     -- User 8's Nature Photography Marathon progress (Adventure 15, tokens 55-60)
+--     (12, 55, '2024-10-29 14:45:00'), -- First token (tokenOrder 1)
+--     (12, 56, '2024-10-30 10:20:00'), -- Second token (tokenOrder 2)
+--     (12, 57, '2024-10-31 13:15:00'), -- Third token (tokenOrder 3)
+--     (12, 58, '2024-11-01 09:15:00'), -- Fourth token (tokenOrder 4)
     
-    -- User 9's Academic Treasure Hunt progress (Adventure 16, tokens 61-66)
-    (13, 61, '2024-10-28 12:00:00'), -- First token (tokenOrder 1)
-    (13, 62, '2024-10-30 13:30:00'), -- Second token (tokenOrder 2)
+--     -- User 9's Academic Treasure Hunt progress (Adventure 16, tokens 61-66)
+--     (13, 61, '2024-10-28 12:00:00'), -- First token (tokenOrder 1)
+--     (13, 62, '2024-10-30 13:30:00'), -- Second token (tokenOrder 2)
     
-    -- User 10's Athletic Achievement Hunt progress (Adventure 10, tokens 29-32)
-    (14, 29, '2024-10-31 09:30:00'), -- First token (tokenOrder 1)
+--     -- User 10's Athletic Achievement Hunt progress (Adventure 10, tokens 29-32)
+--     (14, 29, '2024-10-31 09:30:00'), -- First token (tokenOrder 1)
     
-    -- User 13's Beginner Friendly Sampler progress (Adventure 24, tokens 92-94)
-    (17, 92, '2024-10-29 10:45:00'), -- First token (tokenOrder 1)
-    (17, 93, '2024-10-31 15:30:00'), -- Second token (tokenOrder 2)
+--     -- User 13's Beginner Friendly Sampler progress (Adventure 24, tokens 92-94)
+--     (17, 92, '2024-10-29 10:45:00'), -- First token (tokenOrder 1)
+--     (17, 93, '2024-10-31 15:30:00'), -- Second token (tokenOrder 2)
     
-    -- Some users collecting tokens out of order (realistic scenario)
-    (3, 73, '2024-10-31 16:00:00'), -- User 2 found token 7 before token 6 in Forest Survival
-    (5, 80, '2024-11-01 14:30:00'), -- User 3 found token 6 before token 5 in Lakefront Adventure
-    (12, 60, '2024-11-01 08:45:00'); -- User 8 found token 6 before token 5 in Nature Photography
+--     -- Some users collecting tokens out of order (realistic scenario)
+--     (3, 73, '2024-10-31 16:00:00'), -- User 2 found token 7 before token 6 in Forest Survival
+--     (5, 80, '2024-11-01 14:30:00'), -- User 3 found token 6 before token 5 in Lakefront Adventure
+--     (12, 60, '2024-11-01 08:45:00'); -- User 8 found token 6 before token 5 in Nature Photography
 
 -- Summary Statistics
 -- Total Adventurers: 15

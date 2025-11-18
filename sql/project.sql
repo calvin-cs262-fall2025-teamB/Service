@@ -67,26 +67,28 @@ CREATE TABLE CompletedAdventure (
     completionTime interval
 );
 
-CREATE TABLE AdventureInProgress (
-    ID SERIAL PRIMARY KEY,
-    adventurerID integer REFERENCES Adventurer(ID),
-    adventureID integer REFERENCES Adventure(ID),
-    
-    dateStarted timestamp DEFAULT CURRENT_TIMESTAMP,
-    lastUpdated timestamp DEFAULT CURRENT_TIMESTAMP,
-    tokensCollected integer DEFAULT 0,
-    
-    -- Prevent duplicate in-progress adventures for same user
-    UNIQUE(adventurerID, adventureID)
-);
 
-CREATE TABLE CollectedToken (
-    ID SERIAL PRIMARY KEY,
-    adventureInProgressID integer REFERENCES AdventureInProgress(ID),
-    tokenID integer REFERENCES Token(ID),
+
+-- CREATE TABLE CollectedToken (
+--     ID SERIAL PRIMARY KEY,
+--     adventureInProgressID integer REFERENCES AdventureInProgress(ID),
+--     tokenID integer REFERENCES Token(ID),
     
-    collectedAt timestamp DEFAULT CURRENT_TIMESTAMP,
+--     collectedAt timestamp DEFAULT CURRENT_TIMESTAMP,
     
-    -- Prevent collecting same token twice in same adventure instance
-    UNIQUE(adventureInProgressID, tokenID)
-);
+--     -- Prevent collecting same token twice in same adventure instance
+--     UNIQUE(adventureInProgressID, tokenID)
+-- );
+
+-- CREATE TABLE AdventureInProgress (
+--     ID SERIAL PRIMARY KEY,
+--     adventurerID integer REFERENCES Adventurer(ID),
+--     adventureID integer REFERENCES Adventure(ID),
+    
+--     dateStarted timestamp DEFAULT CURRENT_TIMESTAMP,
+--     lastUpdated timestamp DEFAULT CURRENT_TIMESTAMP,
+--     tokensCollected integer DEFAULT 0,
+    
+--     -- Prevent duplicate in-progress adventures for same user
+--     UNIQUE(adventurerID, adventureID)
+-- );
