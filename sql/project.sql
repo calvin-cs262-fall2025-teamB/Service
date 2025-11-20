@@ -11,7 +11,7 @@ CREATE TABLE Adventurer (
     ID SERIAL PRIMARY KEY,
     username TEXT NOT NULL,
     password TEXT NOT NULL,
-    profilePicture VARCHAR(255)                               -- stores something like "/images/user123.jpg"
+    profilePicture VARCHAR(255)  -- stores something like "/images/user123.jpg"
 
 );
 
