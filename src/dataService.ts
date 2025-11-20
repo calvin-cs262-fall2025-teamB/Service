@@ -44,7 +44,7 @@ import pgPromise from 'pg-promise';
 dotenv.config();
 
 // Import types for compile-time checking.
-import type { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 
 // Set up the database
 const db = pgPromise()({
@@ -75,18 +75,64 @@ router.use(express.json());
 router.get('/', readHello);
 router.get('/test', testEndpoint);
 
-/* Homepage Routes */
-router.get('/adventures', readAdventures);
-router.get('/adventuresInRegion/:id', readAdventuresByRegion);
-/*  Profile Routes  */
+/* ============================================================================ */
+/* ADVENTURER ROUTES */
+/* ============================================================================ */
+router.get('/adventurers', readAdventurers);
 router.get('/adventurer/:id', readAdventurer);
-router.get('/AdventuresCompleted/:id', readAdventuresCompletedByAdventurer)
-/* Create Adventure Routes */
+router.post('/adventurers', createAdventurer);
+router.put('/adventurer/:id', updateAdventurer);
+router.delete('/adventurer/:id', deleteAdventurer);
+
+/* ============================================================================ */
+/* REGION ROUTES */
+/* ============================================================================ */
 router.get('/regions', readRegions);
-router.get('/landmarks/:id', readLandmarksInRegion)
-/* Playing Adventure Routes */
-// Use landmarks/:id route to get landmarks in region
-router.get('/tokens/:id', readTokensInAdventure)
+router.get('/region/:id', readRegion);
+router.post('/regions', createRegion);
+router.put('/region/:id', updateRegion);
+router.delete('/region/:id', deleteRegion);
+
+/* ============================================================================ */
+/* LANDMARK ROUTES */
+/* ============================================================================ */
+router.get('/landmarks', readLandmarks);
+router.get('/landmark/:id', readLandmark);
+router.get('/landmarks/region/:id', readLandmarksInRegion);
+router.post('/landmarks', createLandmark);
+router.put('/landmark/:id', updateLandmark);
+router.delete('/landmark/:id', deleteLandmark);
+
+/* ============================================================================ */
+/* ADVENTURE ROUTES */
+/* ============================================================================ */
+router.get('/adventures', readAdventures);
+router.get('/adventure/:id', readAdventure);
+router.get('/adventures/region/:id', readAdventuresByRegion);
+router.get('/adventures/adventurer/:id', readAdventuresByAdventurer);
+router.post('/adventures', createAdventure);
+router.put('/adventure/:id', updateAdventure);
+router.delete('/adventure/:id', deleteAdventure);
+
+/* ============================================================================ */
+/* TOKEN ROUTES */
+/* ============================================================================ */
+router.get('/tokens', readTokens);
+router.get('/token/:id', readToken);
+router.get('/tokens/adventure/:id', readTokensInAdventure);
+router.post('/tokens', createToken);
+router.put('/token/:id', updateToken);
+router.delete('/token/:id', deleteToken);
+
+/* ============================================================================ */
+/* COMPLETED ADVENTURE ROUTES */
+/* ============================================================================ */
+router.get('/completedAdventures', readCompletedAdventures);
+router.get('/completedAdventure/:id', readCompletedAdventure);
+router.get('/completedAdventures/adventurer/:id', readCompletedAdventuresByAdventurer);
+router.post('/completedAdventures', createCompletedAdventure);
+router.put('/completedAdventure/:id', updateCompletedAdventure);
+router.delete('/completedAdventure/:id', deleteCompletedAdventure);
 
 
 app.use(router);
@@ -112,11 +158,24 @@ app.listen(port, (): void => {
 function readHello(_request: Request, response: Response, next: NextFunction): void {
     try {
         console.log('Hello endpoint called');
+        // console.log('Environment check:');
+        // console.log('DB_SERVER:', process.env.DB_SERVER ? 'Set' : 'Missing');
+        // console.log('DB_DATABASE:', process.env.DB_DATABASE ? 'Set' : 'Missing'); 
+        // console.log('DB_USER:', process.env.DB_USER ? 'Set' : 'Missing');
+        // console.log('PORT:', process.env.PORT);
+        // console.log('NODE_ENV:', process.env.NODE_ENV);
         
         response.json({
             message: 'Hello, CS 262 Adventure Game service!',
             status: 'Service is running',
             timestamp: new Date().toISOString(),
+            // environment: {
+            //     dbServerSet: !!process.env.DB_SERVER,
+            //     dbDatabaseSet: !!process.env.DB_DATABASE,
+            //     dbUserSet: !!process.env.DB_USER,
+            //     port: process.env.PORT || 3000,
+            //     nodeEnv: process.env.NODE_ENV || 'development'
+            // }
         });
     } catch (error) {
         console.error('Error in readHello:', error);
@@ -139,10 +198,29 @@ function testEndpoint(_request: Request, response: Response, next: NextFunction)
     }
 }
 
-/* Home Page */
-// Get all adventures
-function readAdventures(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone('SELECT * FROM Adventure')
+/* ============================================================================ */
+/* UTILITY FUNCTIONS */
+/* ============================================================================ */
+
+/**
+ * This utility function standardizes the response pattern for database queries,
+ * returning the data using the given response, or a 404 status for null data
+ * (e.g., when a record is not found).
+ */
+function returnDataOr404(response: Response, data: unknown): void {
+    if (data == null) {
+        response.sendStatus(404);
+    } else {
+        response.send(data);
+    }
+}
+
+/* ============================================================================ */
+/* ADVENTURER FUNCTIONS */
+/* ============================================================================ */
+
+function readAdventurers(_request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone('SELECT * FROM Adventurer ORDER BY id')
         .then((data: any[]): void => {
             response.send(data);
         })
@@ -151,35 +229,68 @@ function readAdventures(request: Request, response: Response, next: NextFunction
         });
 }
 
-// Get all adventures in region 
-function readAdventuresByRegion(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone(
-        'SELECT * FROM Adventure WHERE regionID=${id}'
-        , request.params)
-        .then((data: any[]): void => {
-            response.send(data);
-        })
-        .catch((error: Error): void => {
-            next(error);
-        });
-}
-
-/*  Profile Page  */
 function readAdventurer(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone(
-        'SELECT * FROM Adventurer WHERE ID=${id}'
-        , request.params)
-        .then((data: any[]): void => {
+    db.oneOrNone('SELECT * FROM Adventurer WHERE id=${id}', request.params)
+        .then((data: any | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function createAdventurer(request: Request, response: Response, next: NextFunction): void {
+    db.one('INSERT INTO Adventurer(username, password, profilePicture) VALUES (${username}, ${password}, ${profilePicture}) RETURNING id',
+        request.body
+    )
+        .then((data: { id: number }): void => {
             response.send(data);
         })
         .catch((error: Error): void => {
             next(error);
         });
 }
-function readAdventuresCompletedByAdventurer(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone(
-        'SELECT * FROM CompletedAdventure WHERE adventurerID=${id}'
-        , request.params)
+
+function updateAdventurer(request: Request, response: Response, next: NextFunction): void {
+    db.oneOrNone('UPDATE Adventurer SET username=${body.username}, password=${body.password}, profilePicture=${body.profilePicture} WHERE id=${params.id} RETURNING id', {
+        params: request.params,
+        body: request.body
+    })
+        .then((data: { id: number } | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function deleteAdventurer(request: Request, response: Response, next: NextFunction): void {
+    db.tx((t: any) => {
+        return t.none('DELETE FROM CompletedAdventure WHERE adventurerID=${id}', request.params)
+            .then(() => {
+                return t.none('DELETE FROM Adventure WHERE adventurerID=${id}', request.params);
+            })
+            .then(() => {
+                return t.none('DELETE FROM Region WHERE adventurerID=${id}', request.params);
+            })
+            .then(() => {
+                return t.oneOrNone('DELETE FROM Adventurer WHERE id=${id} RETURNING id', request.params);
+            });
+    })
+        .then((data: { id: number } | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+/* ============================================================================ */
+/* REGION FUNCTIONS */
+/* ============================================================================ */
+
+function readRegions(_request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone('SELECT * FROM Region ORDER BY id')
         .then((data: any[]): void => {
             response.send(data);
         })
@@ -188,11 +299,83 @@ function readAdventuresCompletedByAdventurer(request: Request, response: Respons
         });
 }
 
-/* Create Adventure */
-function readRegions(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone('SELECT * FROM Region')
+function readRegion(request: Request, response: Response, next: NextFunction): void {
+    db.oneOrNone('SELECT * FROM Region WHERE id=${id}', request.params)
+        .then((data: any | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function createRegion(request: Request, response: Response, next: NextFunction): void {
+    db.one('INSERT INTO Region(adventurerID, name, description, location, radius) VALUES (${adventurerID}, ${name}, ${description}, ${location}, ${radius}) RETURNING id',
+        request.body
+    )
+        .then((data: { id: number }): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function updateRegion(request: Request, response: Response, next: NextFunction): void {
+    db.oneOrNone('UPDATE Region SET adventurerID=${body.adventurerID}, name=${body.name}, description=${body.description}, location=${body.location}, radius=${body.radius} WHERE id=${params.id} RETURNING id', {
+        params: request.params,
+        body: request.body
+    })
+        .then((data: { id: number } | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function deleteRegion(request: Request, response: Response, next: NextFunction): void {
+    db.tx((t: any) => {
+        return t.none('DELETE FROM Token WHERE adventureID IN (SELECT id FROM Adventure WHERE regionID=${id})', request.params)
+            .then(() => {
+                return t.none('DELETE FROM CompletedAdventure WHERE adventureID IN (SELECT id FROM Adventure WHERE regionID=${id})', request.params);
+            })
+            .then(() => {
+                return t.none('DELETE FROM Adventure WHERE regionID=${id}', request.params);
+            })
+            .then(() => {
+                return t.none('DELETE FROM Landmark WHERE regionID=${id}', request.params);
+            })
+            .then(() => {
+                return t.oneOrNone('DELETE FROM Region WHERE id=${id} RETURNING id', request.params);
+            });
+    })
+        .then((data: { id: number } | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+/* ============================================================================ */
+/* LANDMARK FUNCTIONS */
+/* ============================================================================ */
+
+function readLandmarks(_request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone('SELECT * FROM Landmark ORDER BY id')
         .then((data: any[]): void => {
             response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function readLandmark(request: Request, response: Response, next: NextFunction): void {
+    db.oneOrNone('SELECT * FROM Landmark WHERE id=${id}', request.params)
+        .then((data: any | null): void => {
+            returnDataOr404(response, data);
         })
         .catch((error: Error): void => {
             next(error);
@@ -200,9 +383,7 @@ function readRegions(request: Request, response: Response, next: NextFunction): 
 }
 
 function readLandmarksInRegion(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone(
-        'SELECT * FROM Landmark WHERE regionID=${id}'
-        , request.params)
+    db.manyOrNone('SELECT * FROM Landmark WHERE regionID=${id} ORDER BY id', request.params)
         .then((data: any[]): void => {
             response.send(data);
         })
@@ -211,12 +392,260 @@ function readLandmarksInRegion(request: Request, response: Response, next: NextF
         });
 }
 
-/* Play Adventure */
-function readTokensInAdventure(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone('SELECT * FROM Token WHERE adventureID=${id}'
-        , request.params)
+function createLandmark(request: Request, response: Response, next: NextFunction): void {
+    db.one('INSERT INTO Landmark(regionID, name, location) VALUES (${regionID}, ${name}, ${location}) RETURNING id',
+        request.body
+    )
+        .then((data: { id: number }): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function updateLandmark(request: Request, response: Response, next: NextFunction): void {
+    db.oneOrNone('UPDATE Landmark SET regionID=${body.regionID}, name=${body.name}, location=${body.location} WHERE id=${params.id} RETURNING id', {
+        params: request.params,
+        body: request.body
+    })
+        .then((data: { id: number } | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function deleteLandmark(request: Request, response: Response, next: NextFunction): void {
+    db.oneOrNone('DELETE FROM Landmark WHERE id=${id} RETURNING id', request.params)
+        .then((data: { id: number } | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+/* ============================================================================ */
+/* ADVENTURE FUNCTIONS */
+/* ============================================================================ */
+
+function readAdventures(_request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone('SELECT * FROM Adventure ORDER BY id')
         .then((data: any[]): void => {
             response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function readAdventure(request: Request, response: Response, next: NextFunction): void {
+    db.oneOrNone('SELECT * FROM Adventure WHERE id=${id}', request.params)
+        .then((data: any | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function readAdventuresByRegion(request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone('SELECT * FROM Adventure WHERE regionID=${id} ORDER BY id', request.params)
+        .then((data: any[]): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function readAdventuresByAdventurer(request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone('SELECT * FROM Adventure WHERE adventurerID=${id} ORDER BY id', request.params)
+        .then((data: any[]): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function createAdventure(request: Request, response: Response, next: NextFunction): void {
+    db.one('INSERT INTO Adventure(adventurerID, regionID, name, numTokens, location) VALUES (${adventurerID}, ${regionID}, ${name}, ${numTokens}, ${location}) RETURNING id',
+        request.body
+    )
+        .then((data: { id: number }): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function updateAdventure(request: Request, response: Response, next: NextFunction): void {
+    db.oneOrNone('UPDATE Adventure SET adventurerID=${body.adventurerID}, regionID=${body.regionID}, name=${body.name}, numTokens=${body.numTokens}, location=${body.location} WHERE id=${params.id} RETURNING id', {
+        params: request.params,
+        body: request.body
+    })
+        .then((data: { id: number } | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function deleteAdventure(request: Request, response: Response, next: NextFunction): void {
+    db.tx((t: any) => {
+        return t.none('DELETE FROM Token WHERE adventureID=${id}', request.params)
+            .then(() => {
+                return t.none('DELETE FROM CompletedAdventure WHERE adventureID=${id}', request.params);
+            })
+            .then(() => {
+                return t.oneOrNone('DELETE FROM Adventure WHERE id=${id} RETURNING id', request.params);
+            });
+    })
+        .then((data: { id: number } | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+/* ============================================================================ */
+/* TOKEN FUNCTIONS */
+/* ============================================================================ */
+
+function readTokens(_request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone('SELECT * FROM Token ORDER BY id')
+        .then((data: any[]): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function readToken(request: Request, response: Response, next: NextFunction): void {
+    db.oneOrNone('SELECT * FROM Token WHERE id=${id}', request.params)
+        .then((data: any | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function readTokensInAdventure(request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone('SELECT * FROM Token WHERE adventureID=${id} ORDER BY tokenOrder, id', request.params)
+        .then((data: any[]): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function createToken(request: Request, response: Response, next: NextFunction): void {
+    db.one('INSERT INTO Token(adventureID, location, hint, tokenOrder) VALUES (${adventureID}, ${location}, ${hint}, ${tokenOrder}) RETURNING id',
+        request.body
+    )
+        .then((data: { id: number }): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function updateToken(request: Request, response: Response, next: NextFunction): void {
+    db.oneOrNone('UPDATE Token SET adventureID=${body.adventureID}, location=${body.location}, hint=${body.hint}, tokenOrder=${body.tokenOrder} WHERE id=${params.id} RETURNING id', {
+        params: request.params,
+        body: request.body
+    })
+        .then((data: { id: number } | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function deleteToken(request: Request, response: Response, next: NextFunction): void {
+    db.oneOrNone('DELETE FROM Token WHERE id=${id} RETURNING id', request.params)
+        .then((data: { id: number } | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+/* ============================================================================ */
+/* COMPLETED ADVENTURE FUNCTIONS */
+/* ============================================================================ */
+
+function readCompletedAdventures(_request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone('SELECT * FROM CompletedAdventure ORDER BY completionDate DESC')
+        .then((data: any[]): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function readCompletedAdventure(request: Request, response: Response, next: NextFunction): void {
+    db.oneOrNone('SELECT * FROM CompletedAdventure WHERE id=${id}', request.params)
+        .then((data: any | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function readCompletedAdventuresByAdventurer(request: Request, response: Response, next: NextFunction): void {
+    db.manyOrNone('SELECT * FROM CompletedAdventure WHERE adventurerID=${id} ORDER BY completionDate DESC', request.params)
+        .then((data: any[]): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function createCompletedAdventure(request: Request, response: Response, next: NextFunction): void {
+    db.one('INSERT INTO CompletedAdventure(adventurerID, adventureID, completionDate, completionTime) VALUES (${adventurerID}, ${adventureID}, ${completionDate}, ${completionTime}) RETURNING id',
+        request.body
+    )
+        .then((data: { id: number }): void => {
+            response.send(data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function updateCompletedAdventure(request: Request, response: Response, next: NextFunction): void {
+    db.oneOrNone('UPDATE CompletedAdventure SET adventurerID=${body.adventurerID}, adventureID=${body.adventureID}, completionDate=${body.completionDate}, completionTime=${body.completionTime} WHERE id=${params.id} RETURNING id', {
+        params: request.params,
+        body: request.body
+    })
+        .then((data: { id: number } | null): void => {
+            returnDataOr404(response, data);
+        })
+        .catch((error: Error): void => {
+            next(error);
+        });
+}
+
+function deleteCompletedAdventure(request: Request, response: Response, next: NextFunction): void {
+    db.oneOrNone('DELETE FROM CompletedAdventure WHERE id=${id} RETURNING id', request.params)
+        .then((data: { id: number } | null): void => {
+            returnDataOr404(response, data);
         })
         .catch((error: Error): void => {
             next(error);
