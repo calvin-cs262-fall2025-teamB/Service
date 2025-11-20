@@ -112,24 +112,11 @@ app.listen(port, (): void => {
 function readHello(_request: Request, response: Response, next: NextFunction): void {
     try {
         console.log('Hello endpoint called');
-        // console.log('Environment check:');
-        // console.log('DB_SERVER:', process.env.DB_SERVER ? 'Set' : 'Missing');
-        // console.log('DB_DATABASE:', process.env.DB_DATABASE ? 'Set' : 'Missing'); 
-        // console.log('DB_USER:', process.env.DB_USER ? 'Set' : 'Missing');
-        // console.log('PORT:', process.env.PORT);
-        // console.log('NODE_ENV:', process.env.NODE_ENV);
         
         response.json({
             message: 'Hello, CS 262 Adventure Game service!',
             status: 'Service is running',
             timestamp: new Date().toISOString(),
-            // environment: {
-            //     dbServerSet: !!process.env.DB_SERVER,
-            //     dbDatabaseSet: !!process.env.DB_DATABASE,
-            //     dbUserSet: !!process.env.DB_USER,
-            //     port: process.env.PORT || 3000,
-            //     nodeEnv: process.env.NODE_ENV || 'development'
-            // }
         });
     } catch (error) {
         console.error('Error in readHello:', error);
