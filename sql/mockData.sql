@@ -39,7 +39,7 @@ INSERT INTO Adventurer(username, password, profilePicture) VALUES
     ('RoamRyan', 'ryan456', 'pictures/avatar14.jpg'),
     ('QuestQuinn', 'quinn789', 'pictures/avatar15.jpg'),
     -- User Test Data
-    ('Dev', 'b', 'pictures/avatar16.jpg'),
+    ('dev', 'b', 'pictures/avatar16.jpg'),
 
 -- Insert Regions (12 regions across different locations)
 INSERT INTO Region(name, adventurerID, description, location, radius) VALUES 
@@ -59,7 +59,6 @@ INSERT INTO Region(name, adventurerID, description, location, radius) VALUES
     ('Test Zone Alpha', 1, 'Easy test region for demos and user testing', POINT(42.9300, -85.6500), 200),
     ('Demo Area Beta', 2, 'Simple demo area with clear landmarks', POINT(42.9400, -85.6600), 150),
     ('Practice Ground', 3, 'Perfect for first-time users to learn the app', POINT(42.9500, -85.6700), 100);
-
 
 -- Insert Landmarks (36 landmarks, 3 per region)
 INSERT INTO Landmark(name, regionID, location) VALUES 
