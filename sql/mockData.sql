@@ -37,7 +37,9 @@ INSERT INTO Adventurer(username, password, profilePicture) VALUES
     ('AdventureJake', 'jake789', 'pictures/avatar12.jpg'),
     ('SeekSamantha', 'sam2024', 'pictures/avatar13.jpg'),
     ('RoamRyan', 'ryan456', 'pictures/avatar14.jpg'),
-    ('QuestQuinn', 'quinn789', 'pictures/avatar15.jpg');
+    ('QuestQuinn', 'quinn789', 'pictures/avatar15.jpg'),
+    -- User Test Data
+    ('Dev', 'b', 'pictures/avatar16.jpg'),
 
 -- Insert Regions (12 regions across different locations)
 INSERT INTO Region(name, adventurerID, description, location, radius) VALUES 
@@ -52,7 +54,12 @@ INSERT INTO Region(name, adventurerID, description, location, radius) VALUES
     ('Art Gallery Walk', 9, 'Creative journey through local art galleries and street art', POINT(42.9678, -85.6512), 250),
     ('Sports Complex Challenge', 10, 'Athletic adventure through various sports facilities and stadiums', POINT(42.9389, -85.6678), 400),
     ('Mountain View Trail', 11, 'Challenging hike with breathtaking mountain views and photo opportunities', POINT(42.9812, -85.7123), 1000),
-    ('Garden District Stroll', 12, 'Peaceful walk through beautiful gardens and botanical displays', POINT(42.9234, -85.6456), 350);
+    ('Garden District Stroll', 12, 'Peaceful walk through beautiful gardens and botanical displays', POINT(42.9234, -85.6456), 350),
+    -- Uer Test Data
+    ('Test Zone Alpha', 1, 'Easy test region for demos and user testing', POINT(42.9300, -85.6500), 200),
+    ('Demo Area Beta', 2, 'Simple demo area with clear landmarks', POINT(42.9400, -85.6600), 150),
+    ('Practice Ground', 3, 'Perfect for first-time users to learn the app', POINT(42.9500, -85.6700), 100);
+
 
 -- Insert Landmarks (36 landmarks, 3 per region)
 INSERT INTO Landmark(name, regionID, location) VALUES 
@@ -114,7 +121,23 @@ INSERT INTO Landmark(name, regionID, location) VALUES
     -- Garden District Stroll (Region 12)
     ('Rose Garden', 12, POINT(42.9228, -85.6450)),
     ('Butterfly Conservatory', 12, POINT(42.9240, -85.6462)),
-    ('Herb Garden', 12, POINT(42.9222, -85.6444));
+    ('Herb Garden', 12, POINT(42.9222, -85.6444)),
+    
+    -- User Test Data
+    -- Test Zone Alpha (Region 13)
+    ('Test Point A', 13, POINT(42.9295, -85.6495)),
+    ('Test Point B', 13, POINT(42.9305, -85.6505)),
+    ('Test Point C', 13, POINT(42.9285, -85.6485)),
+    
+    -- Demo Area Beta (Region 14)
+    ('Demo Marker 1', 14, POINT(42.9395, -85.6595)),
+    ('Demo Marker 2', 14, POINT(42.9405, -85.6605)),
+    ('Demo Marker 3', 14, POINT(42.9385, -85.6585)),
+    
+    -- Practice Ground (Region 15)
+    ('Start Here', 15, POINT(42.9495, -85.6695)),
+    ('Middle Point', 15, POINT(42.9505, -85.6705)),
+    ('Finish Line', 15, POINT(42.9485, -85.6685));
 
 -- Insert Adventures (24 adventures with varying difficulty)
 INSERT INTO Adventure(name, adventurerID, regionID, location, numTokens) VALUES 
@@ -148,7 +171,14 @@ INSERT INTO Adventure(name, adventurerID, regionID, location, numTokens) VALUES
     ('Art and History Journey', 9, 7, POINT(42.9460, -85.6785), 4),
     ('Sports and Recreation Tour', 10, 10, POINT(42.9385, -85.6675), 5),
     ('Ultimate Adventure Challenge', 11, 11, POINT(42.9815, -85.7120), 10),
-    ('Beginner Friendly Sampler', 12, 12, POINT(42.9230, -85.6450), 3);
+    ('Beginner Friendly Sampler', 12, 12, POINT(42.9230, -85.6450), 3),
+    
+    -- User Test Data
+    -- Test adventures for easy demo use
+    ('Quick Test Run', 17, 13, POINT(42.9300, -85.6500), 2),
+    ('Demo Adventure', 18, 14, POINT(42.9400, -85.6600), 3),
+    ('First Timer Quest', 19, 15, POINT(42.9500, -85.6700), 1),
+    ('Simple Practice', 20, 13, POINT(42.9290, -85.6490), 2);
 
 -- Insert Tokens (140+ tokens across all adventures)
 -- Adventure 1: Historic Downtown Walking Tour (3 tokens)
@@ -309,6 +339,28 @@ INSERT INTO Token(adventureID, location, hint, tokenOrder) VALUES
     (24, POINT(42.9240, -85.6462), 'Wonder at nature''s flying jewels', 2),
     (24, POINT(42.9234, -85.6456), 'Complete your first quest in the garden''s heart', 3);
 
+-- User Test Data
+-- Test Adventure Tokens (25-28)
+-- Adventure 25: Quick Test Run (2 tokens)
+INSERT INTO Token(adventureID, location, hint, tokenOrder) VALUES 
+    (25, POINT(42.9295, -85.6495), 'Find Test Point A - look for the sign!', 1),
+    (25, POINT(42.9305, -85.6505), 'You made it to Test Point B - almost done!', 2);
+
+-- Adventure 26: Demo Adventure (3 tokens)
+INSERT INTO Token(adventureID, location, hint, tokenOrder) VALUES 
+    (26, POINT(42.9395, -85.6595), 'Welcome to Demo Marker 1 - great start!', 1),
+    (26, POINT(42.9405, -85.6605), 'Demo Marker 2 found - you''re doing great!', 2),
+    (26, POINT(42.9385, -85.6585), 'Demo Marker 3 complete - adventure finished!', 3);
+
+-- Adventure 27: First Timer Quest (1 token)
+INSERT INTO Token(adventureID, location, hint, tokenOrder) VALUES 
+    (27, POINT(42.9495, -85.6695), 'Welcome! This is where all adventures begin!', 1);
+
+-- Adventure 28: Simple Practice (2 tokens)
+INSERT INTO Token(adventureID, location, hint, tokenOrder) VALUES 
+    (28, POINT(42.9290, -85.6490), 'Practice makes perfect - find this easy spot!', 1),
+    (28, POINT(42.9310, -85.6510), 'Great job! You''ve completed the practice run!', 2);
+
 -- Insert Completed Adventures (various completion dates and times)
 INSERT INTO CompletedAdventure(adventurerID, adventureID, completionDate, completionTime) VALUES 
     -- User 1 completions
@@ -364,7 +416,14 @@ INSERT INTO CompletedAdventure(adventurerID, adventureID, completionDate, comple
     (12, 4, '2024-10-29', '00:41:15'),
     (13, 5, '2024-10-30', '01:18:40'),
     (14, 6, '2024-10-31', '00:52:25'),
-    (15, 24, '2024-11-01', '00:38:10');
+    (15, 24, '2024-11-01', '00:38:10'),
+    
+    -- User Test Data
+    -- Test user completions for demo
+    (16, 27, '2024-11-27', '00:05:30'),  -- test user completed First Timer Quest
+    (16, 25, '2024-11-27', '00:08:15'),  -- demo user completed Quick Test Run
+    (16, 28, '2024-11-27', '00:06:45'),  -- user1 completed Simple Practice
+    (16, 26, '2024-11-27', '00:12:20');  -- test user also completed Demo Adventure
 
 -- -- Insert Adventures In Progress (users who started but haven't finished adventures)
 -- INSERT INTO AdventureInProgress(adventurerID, adventureID, dateStarted, lastUpdated, tokensCollected) VALUES 
