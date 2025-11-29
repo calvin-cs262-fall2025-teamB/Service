@@ -39,7 +39,7 @@ INSERT INTO Adventurer(username, password, profilePicture) VALUES
     ('RoamRyan', 'ryan456', 'pictures/avatar14.jpg'),
     ('QuestQuinn', 'quinn789', 'pictures/avatar15.jpg'),
     -- User Test Data
-    ('dev', 'b', 'pictures/avatar16.jpg'),
+    ('dev', 'b', 'pictures/avatar16.jpg');
 
 -- Insert Regions (12 regions across different locations)
 INSERT INTO Region(name, adventurerID, description, location, radius) VALUES 
@@ -174,10 +174,10 @@ INSERT INTO Adventure(name, adventurerID, regionID, location, numTokens) VALUES
     
     -- User Test Data
     -- Test adventures for easy demo use
-    ('Quick Test Run', 17, 13, POINT(42.9300, -85.6500), 2),
-    ('Demo Adventure', 18, 14, POINT(42.9400, -85.6600), 3),
-    ('First Timer Quest', 19, 15, POINT(42.9500, -85.6700), 1),
-    ('Simple Practice', 20, 13, POINT(42.9290, -85.6490), 2);
+    ('Quick Test Run', 1, 13, POINT(42.9300, -85.6500), 2),
+    ('Demo Adventure', 1, 14, POINT(42.9400, -85.6600), 3),
+    ('First Timer Quest', 1, 15, POINT(42.9500, -85.6700), 1),
+    ('Simple Practice', 1, 13, POINT(42.9290, -85.6490), 2);
 
 -- Insert Tokens (140+ tokens across all adventures)
 -- Adventure 1: Historic Downtown Walking Tour (3 tokens)
