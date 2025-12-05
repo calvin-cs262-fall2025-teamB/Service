@@ -165,18 +165,9 @@ function readHello(_request: Request, response: Response, next: NextFunction): v
         // console.log('PORT:', process.env.PORT);
         // console.log('NODE_ENV:', process.env.NODE_ENV);
         
-        response.json({
-            message: 'Hello, CS 262 Adventure Game service!',
-            status: 'Service is running',
-            timestamp: new Date().toISOString(),
-            // environment: {
-            //     dbServerSet: !!process.env.DB_SERVER,
-            //     dbDatabaseSet: !!process.env.DB_DATABASE,
-            //     dbUserSet: !!process.env.DB_USER,
-            //     port: process.env.PORT || 3000,
-            //     nodeEnv: process.env.NODE_ENV || 'development'
-            // }
-        });
+        response.json(
+            "Hello!"
+        );
     } catch (error) {
         console.error('Error in readHello:', error);
         next(error);
