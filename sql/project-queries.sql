@@ -72,18 +72,18 @@
 -- ---- Creation ----
 
 
--- SELECT *
---   FROM Adventurer
---   ;
+SELECT *
+  FROM Adventurer
+  ;
 -- SELECT *
 --   FROM Region
 --   ;
 -- SELECT *
 --   FROM Landmark
 --   ;
-SELECT *
-  FROM Adventure
-  ;
+-- SELECT *
+--   FROM Adventure
+--   ;
 -- SELECT *
 --   FROM Token
 --   ;

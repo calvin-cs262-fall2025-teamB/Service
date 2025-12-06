@@ -39,7 +39,7 @@ INSERT INTO Adventurer(username, password, profilePicture) VALUES
     ('RoamRyan', 'ryan456', 'pictures/avatar14.jpg'),
     ('QuestQuinn', 'quinn789', 'pictures/avatar15.jpg'),
     -- User Test Data
-    ('dev', 'b', 'pictures/avatar16.jpg');
+    ('dev', 'Adventure123!', 'pictures/avatar16.jpg');
 
 -- Insert Regions (12 regions across different locations)
 INSERT INTO Region(name, adventurerID, description, location, radius) VALUES 
