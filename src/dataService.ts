@@ -231,7 +231,7 @@ function readAdventurer(request: Request, response: Response, next: NextFunction
 }
 
 function createAdventurer(request: Request, response: Response, next: NextFunction): void {
-    db.one('INSERT INTO Adventurer(username, password, profilePicture) VALUES (${username}, ${password}, ${profilePicture}) RETURNING id',
+    db.one('INSERT INTO Adventurer(username, password, profilepicture) VALUES (${username}, ${password}, ${profilepicture}) RETURNING id',
         request.body
     )
         .then((data: { id: number }): void => {
@@ -243,7 +243,7 @@ function createAdventurer(request: Request, response: Response, next: NextFuncti
 }
 
 function updateAdventurer(request: Request, response: Response, next: NextFunction): void {
-    db.oneOrNone('UPDATE Adventurer SET username=${body.username}, password=${body.password}, profilePicture=${body.profilePicture} WHERE id=${params.id} RETURNING id', {
+    db.oneOrNone('UPDATE Adventurer SET username=${body.username}, password=${body.password}, profilepicture=${body.profilepicture} WHERE id=${params.id} RETURNING id', {
         params: request.params,
         body: request.body
     })
@@ -257,12 +257,12 @@ function updateAdventurer(request: Request, response: Response, next: NextFuncti
 
 function deleteAdventurer(request: Request, response: Response, next: NextFunction): void {
     db.tx((t: any) => {
-        return t.none('DELETE FROM CompletedAdventure WHERE adventurerID=${id}', request.params)
+        return t.none('DELETE FROM CompletedAdventure WHERE adventurerid=${id}', request.params)
             .then(() => {
-                return t.none('DELETE FROM Adventure WHERE adventurerID=${id}', request.params);
+                return t.none('DELETE FROM Adventure WHERE adventurerid=${id}', request.params);
             })
             .then(() => {
-                return t.none('DELETE FROM Region WHERE adventurerID=${id}', request.params);
+                return t.none('DELETE FROM Region WHERE adventurerid=${id}', request.params);
             })
             .then(() => {
                 return t.oneOrNone('DELETE FROM Adventurer WHERE id=${id} RETURNING id', request.params);
@@ -301,7 +301,7 @@ function readRegion(request: Request, response: Response, next: NextFunction): v
 }
 
 function createRegion(request: Request, response: Response, next: NextFunction): void {
-    db.one('INSERT INTO Region(adventurerID, name, description, location, radius) VALUES (${adventurerID}, ${name}, ${description}, ${location}, ${radius}) RETURNING id',
+    db.one('INSERT INTO Region(adventurerid, name, description, location, radius) VALUES (${adventurerid}, ${name}, ${description}, ${location}, ${radius}) RETURNING id',
         request.body
     )
         .then((data: { id: number }): void => {
@@ -313,7 +313,7 @@ function createRegion(request: Request, response: Response, next: NextFunction):
 }
 
 function updateRegion(request: Request, response: Response, next: NextFunction): void {
-    db.oneOrNone('UPDATE Region SET adventurerID=${body.adventurerID}, name=${body.name}, description=${body.description}, location=${body.location}, radius=${body.radius} WHERE id=${params.id} RETURNING id', {
+    db.oneOrNone('UPDATE Region SET adventurerid=${body.adventurerid}, name=${body.name}, description=${body.description}, location=${body.location}, radius=${body.radius} WHERE id=${params.id} RETURNING id', {
         params: request.params,
         body: request.body
     })
@@ -327,15 +327,15 @@ function updateRegion(request: Request, response: Response, next: NextFunction):
 
 function deleteRegion(request: Request, response: Response, next: NextFunction): void {
     db.tx((t: any) => {
-        return t.none('DELETE FROM Token WHERE adventureID IN (SELECT id FROM Adventure WHERE regionID=${id})', request.params)
+        return t.none('DELETE FROM Token WHERE adventureid IN (SELECT id FROM Adventure WHERE regionid=${id})', request.params)
             .then(() => {
-                return t.none('DELETE FROM CompletedAdventure WHERE adventureID IN (SELECT id FROM Adventure WHERE regionID=${id})', request.params);
+                return t.none('DELETE FROM CompletedAdventure WHERE adventureid IN (SELECT id FROM Adventure WHERE regionid=${id})', request.params);
             })
             .then(() => {
-                return t.none('DELETE FROM Adventure WHERE regionID=${id}', request.params);
+                return t.none('DELETE FROM Adventure WHERE regionid=${id}', request.params);
             })
             .then(() => {
-                return t.none('DELETE FROM Landmark WHERE regionID=${id}', request.params);
+                return t.none('DELETE FROM Landmark WHERE regionid=${id}', request.params);
             })
             .then(() => {
                 return t.oneOrNone('DELETE FROM Region WHERE id=${id} RETURNING id', request.params);
@@ -374,7 +374,7 @@ function readLandmark(request: Request, response: Response, next: NextFunction):
 }
 
 function readLandmarksInRegion(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone('SELECT * FROM Landmark WHERE regionID=${id} ORDER BY id', request.params)
+    db.manyOrNone('SELECT * FROM Landmark WHERE regionid=${id} ORDER BY id', request.params)
         .then((data: any[]): void => {
             response.send(data);
         })
@@ -384,7 +384,7 @@ function readLandmarksInRegion(request: Request, response: Response, next: NextF
 }
 
 function createLandmark(request: Request, response: Response, next: NextFunction): void {
-    db.one('INSERT INTO Landmark(regionID, name, location) VALUES (${regionID}, ${name}, ${location}) RETURNING id',
+    db.one('INSERT INTO Landmark(regionid, name, location) VALUES (${regionid}, ${name}, ${location}) RETURNING id',
         request.body
     )
         .then((data: { id: number }): void => {
@@ -396,7 +396,7 @@ function createLandmark(request: Request, response: Response, next: NextFunction
 }
 
 function updateLandmark(request: Request, response: Response, next: NextFunction): void {
-    db.oneOrNone('UPDATE Landmark SET regionID=${body.regionID}, name=${body.name}, location=${body.location} WHERE id=${params.id} RETURNING id', {
+    db.oneOrNone('UPDATE Landmark SET regionid=${body.regionid}, name=${body.name}, location=${body.location} WHERE id=${params.id} RETURNING id', {
         params: request.params,
         body: request.body
     })
@@ -443,7 +443,7 @@ function readAdventure(request: Request, response: Response, next: NextFunction)
 }
 
 function readAdventuresByRegion(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone('SELECT * FROM Adventure WHERE regionID=${id} ORDER BY id', request.params)
+    db.manyOrNone('SELECT * FROM Adventure WHERE regionid=${id} ORDER BY id', request.params)
         .then((data: any[]): void => {
             response.send(data);
         })
@@ -453,7 +453,7 @@ function readAdventuresByRegion(request: Request, response: Response, next: Next
 }
 
 function readAdventuresByAdventurer(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone('SELECT * FROM Adventure WHERE adventurerID=${id} ORDER BY id', request.params)
+    db.manyOrNone('SELECT * FROM Adventure WHERE adventurerid=${id} ORDER BY id', request.params)
         .then((data: any[]): void => {
             response.send(data);
         })
@@ -463,7 +463,7 @@ function readAdventuresByAdventurer(request: Request, response: Response, next: 
 }
 
 function createAdventure(request: Request, response: Response, next: NextFunction): void {
-    db.one('INSERT INTO Adventure(adventurerID, regionID, name, numTokens, location) VALUES (${adventurerID}, ${regionID}, ${name}, ${numTokens}, ${location}) RETURNING id',
+    db.one('INSERT INTO Adventure(adventurerid, regionid, name, numtokens, location) VALUES (${adventurerid}, ${regionid}, ${name}, ${numtokens}, ${location}) RETURNING id',
         request.body
     )
         .then((data: { id: number }): void => {
@@ -475,7 +475,7 @@ function createAdventure(request: Request, response: Response, next: NextFunctio
 }
 
 function updateAdventure(request: Request, response: Response, next: NextFunction): void {
-    db.oneOrNone('UPDATE Adventure SET adventurerID=${body.adventurerID}, regionID=${body.regionID}, name=${body.name}, numTokens=${body.numTokens}, location=${body.location} WHERE id=${params.id} RETURNING id', {
+    db.oneOrNone('UPDATE Adventure SET adventurerid=${body.adventurerid}, regionid=${body.regionid}, name=${body.name}, numtokens=${body.numtokens}, location=${body.location} WHERE id=${params.id} RETURNING id', {
         params: request.params,
         body: request.body
     })
@@ -489,9 +489,9 @@ function updateAdventure(request: Request, response: Response, next: NextFunctio
 
 function deleteAdventure(request: Request, response: Response, next: NextFunction): void {
     db.tx((t: any) => {
-        return t.none('DELETE FROM Token WHERE adventureID=${id}', request.params)
+        return t.none('DELETE FROM Token WHERE adventureid=${id}', request.params)
             .then(() => {
-                return t.none('DELETE FROM CompletedAdventure WHERE adventureID=${id}', request.params);
+                return t.none('DELETE FROM CompletedAdventure WHERE adventureid=${id}', request.params);
             })
             .then(() => {
                 return t.oneOrNone('DELETE FROM Adventure WHERE id=${id} RETURNING id', request.params);
@@ -530,7 +530,7 @@ function readToken(request: Request, response: Response, next: NextFunction): vo
 }
 
 function readTokensInAdventure(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone('SELECT * FROM Token WHERE adventureID=${id} ORDER BY tokenOrder, id', request.params)
+    db.manyOrNone('SELECT * FROM Token WHERE adventureid=${id} ORDER BY tokenorder, id', request.params)
         .then((data: any[]): void => {
             response.send(data);
         })
@@ -540,7 +540,7 @@ function readTokensInAdventure(request: Request, response: Response, next: NextF
 }
 
 function createToken(request: Request, response: Response, next: NextFunction): void {
-    db.one('INSERT INTO Token(adventureID, location, hint, tokenOrder) VALUES (${adventureID}, ${location}, ${hint}, ${tokenOrder}) RETURNING id',
+    db.one('INSERT INTO Token(adventureid, location, hint, tokenorder) VALUES (${adventureid}, ${location}, ${hint}, ${tokenorder}) RETURNING id',
         request.body
     )
         .then((data: { id: number }): void => {
@@ -552,7 +552,7 @@ function createToken(request: Request, response: Response, next: NextFunction): 
 }
 
 function updateToken(request: Request, response: Response, next: NextFunction): void {
-    db.oneOrNone('UPDATE Token SET adventureID=${body.adventureID}, location=${body.location}, hint=${body.hint}, tokenOrder=${body.tokenOrder} WHERE id=${params.id} RETURNING id', {
+    db.oneOrNone('UPDATE Token SET adventureid=${body.adventureid}, location=${body.location}, hint=${body.hint}, tokenorder=${body.tokenorder} WHERE id=${params.id} RETURNING id', {
         params: request.params,
         body: request.body
     })
@@ -579,7 +579,7 @@ function deleteToken(request: Request, response: Response, next: NextFunction): 
 /* ============================================================================ */
 
 function readCompletedAdventures(_request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone('SELECT * FROM CompletedAdventure ORDER BY completionDate DESC')
+    db.manyOrNone('SELECT * FROM CompletedAdventure ORDER BY completiondate DESC')
         .then((data: any[]): void => {
             response.send(data);
         })
@@ -599,7 +599,7 @@ function readCompletedAdventure(request: Request, response: Response, next: Next
 }
 
 function readCompletedAdventuresByAdventurer(request: Request, response: Response, next: NextFunction): void {
-    db.manyOrNone('SELECT * FROM CompletedAdventure WHERE adventurerID=${id} ORDER BY completionDate DESC', request.params)
+    db.manyOrNone('SELECT * FROM CompletedAdventure WHERE adventurerid=${id} ORDER BY completiondate DESC', request.params)
         .then((data: any[]): void => {
             response.send(data);
         })
@@ -609,7 +609,7 @@ function readCompletedAdventuresByAdventurer(request: Request, response: Respons
 }
 
 function createCompletedAdventure(request: Request, response: Response, next: NextFunction): void {
-    db.one('INSERT INTO CompletedAdventure(adventurerID, adventureID, completionDate, completionTime) VALUES (${adventurerID}, ${adventureID}, ${completionDate}, ${completionTime}) RETURNING id',
+    db.one('INSERT INTO CompletedAdventure(adventurerid, adventureid, completiondate, completiontime) VALUES (${adventurerid}, ${adventureid}, ${completiondate}, ${completiontime}) RETURNING id',
         request.body
     )
         .then((data: { id: number }): void => {
@@ -621,7 +621,7 @@ function createCompletedAdventure(request: Request, response: Response, next: Ne
 }
 
 function updateCompletedAdventure(request: Request, response: Response, next: NextFunction): void {
-    db.oneOrNone('UPDATE CompletedAdventure SET adventurerID=${body.adventurerID}, adventureID=${body.adventureID}, completionDate=${body.completionDate}, completionTime=${body.completionTime} WHERE id=${params.id} RETURNING id', {
+    db.oneOrNone('UPDATE CompletedAdventure SET adventurerid=${body.adventurerid}, adventureid=${body.adventureid}, completiondate=${body.completiondate}, completiontime=${body.completiontime} WHERE id=${params.id} RETURNING id', {
         params: request.params,
         body: request.body
     })
