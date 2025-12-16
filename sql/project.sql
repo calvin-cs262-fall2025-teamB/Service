@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS Region;
 DROP TABLE IF EXISTS Adventurer;
 
 CREATE TABLE Adventurer (
-    ID SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     username TEXT NOT NULL,
     password TEXT NOT NULL,
     profilePicture VARCHAR(255)  -- stores something like "/images/user123.jpg"
@@ -17,7 +17,7 @@ CREATE TABLE Adventurer (
 
 CREATE TABLE Region (
     -- IDs
-    ID SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     adventurerID integer REFERENCES Adventurer(ID),
 
     -- Descriptive data
@@ -31,7 +31,7 @@ CREATE TABLE Region (
 );
 
 CREATE TABLE Landmark (
-    ID SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     regionID integer REFERENCES Region(ID),
 
     name TEXT NOT NULL,
@@ -39,9 +39,9 @@ CREATE TABLE Landmark (
 );
 
 CREATE TABLE Adventure (
-    ID SERIAL PRIMARY KEY,
-    adventurerID integer REFERENCES Adventurer(ID),
-    regionID integer REFERENCES Region(ID),
+    id SERIAL PRIMARY KEY,
+    adventurerid integer REFERENCES Adventurer(ID),
+    regionid integer REFERENCES Region(ID),
 
     name TEXT NOT NULL,
     numTokens integer,
@@ -49,8 +49,8 @@ CREATE TABLE Adventure (
 );
 
 CREATE TABLE Token (
-    ID SERIAL PRIMARY KEY,
-    adventureID integer REFERENCES Adventure(ID),
+    id SERIAL PRIMARY KEY,
+    adventureid integer REFERENCES Adventure(ID),
 
     location point,
     hint TEXT,
@@ -58,37 +58,11 @@ CREATE TABLE Token (
 );
 
 CREATE TABLE CompletedAdventure (
-    ID SERIAL PRIMARY KEY,
-    adventurerID integer REFERENCES Adventurer(ID),
-    adventureID integer REFERENCES Adventure(ID),
+    id SERIAL PRIMARY KEY,
+    adventurerid integer REFERENCES Adventurer(ID),
+    adventureid integer REFERENCES Adventure(ID),
 
     -- Player Data
     completionDate date,
     completionTime interval
 );
-
-
-
--- CREATE TABLE CollectedToken (
---     ID SERIAL PRIMARY KEY,
---     adventureInProgressID integer REFERENCES AdventureInProgress(ID),
---     tokenID integer REFERENCES Token(ID),
-    
---     collectedAt timestamp DEFAULT CURRENT_TIMESTAMP,
-    
---     -- Prevent collecting same token twice in same adventure instance
---     UNIQUE(adventureInProgressID, tokenID)
--- );
-
--- CREATE TABLE AdventureInProgress (
---     ID SERIAL PRIMARY KEY,
---     adventurerID integer REFERENCES Adventurer(ID),
---     adventureID integer REFERENCES Adventure(ID),
-    
---     dateStarted timestamp DEFAULT CURRENT_TIMESTAMP,
---     lastUpdated timestamp DEFAULT CURRENT_TIMESTAMP,
---     tokensCollected integer DEFAULT 0,
-    
---     -- Prevent duplicate in-progress adventures for same user
---     UNIQUE(adventurerID, adventureID)
--- );

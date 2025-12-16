@@ -72,12 +72,12 @@
 -- ---- Creation ----
 
 
-SELECT *
-  FROM Adventurer
-  ;
 -- SELECT *
---   FROM Region
+--   FROM Adventurer
 --   ;
+SELECT *
+  FROM Region
+  ;
 -- SELECT *
 --   FROM Landmark
 --   ;
