@@ -11,14 +11,13 @@ CREATE TABLE Adventurer (
     id SERIAL PRIMARY KEY,
     username TEXT NOT NULL,
     password TEXT NOT NULL,
-    profilePicture VARCHAR(255)  -- stores something like "/images/user123.jpg"
-
+    profilepicture VARCHAR(255)  -- stores something like "/images/user123.jpg"
 );
 
 CREATE TABLE Region (
     -- IDs
     id SERIAL PRIMARY KEY,
-    adventurerID integer REFERENCES Adventurer(ID),
+    adventurerid integer REFERENCES Adventurer(id),
 
     -- Descriptive data
     name TEXT NOT NULL,
@@ -32,7 +31,7 @@ CREATE TABLE Region (
 
 CREATE TABLE Landmark (
     id SERIAL PRIMARY KEY,
-    regionID integer REFERENCES Region(ID),
+    regionid integer REFERENCES Region(id),
 
     name TEXT NOT NULL,
     location point
@@ -40,29 +39,29 @@ CREATE TABLE Landmark (
 
 CREATE TABLE Adventure (
     id SERIAL PRIMARY KEY,
-    adventurerid integer REFERENCES Adventurer(ID),
-    regionid integer REFERENCES Region(ID),
+    adventurerid integer REFERENCES Adventurer(id),
+    regionid integer REFERENCES Region(id),
 
     name TEXT NOT NULL,
-    numTokens integer,
+    numtokens integer,
     location point
 );
 
 CREATE TABLE Token (
     id SERIAL PRIMARY KEY,
-    adventureid integer REFERENCES Adventure(ID),
+    adventureid integer REFERENCES Adventure(id),
 
     location point,
     hint TEXT,
-    tokenOrder integer
+    tokenorder integer
 );
 
 CREATE TABLE CompletedAdventure (
     id SERIAL PRIMARY KEY,
-    adventurerid integer REFERENCES Adventurer(ID),
-    adventureid integer REFERENCES Adventure(ID),
+    adventurerid integer REFERENCES Adventurer(id),
+    adventureid integer REFERENCES Adventure(id),
 
     -- Player Data
-    completionDate date,
-    completionTime interval
+    completiondate date,
+    completiontime interval
 );
