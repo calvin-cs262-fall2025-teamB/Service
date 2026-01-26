@@ -36,12 +36,16 @@
  * @date: Fall, 2025 (updated to JS->TS, Node version, and master->main repo)
  */
 
+import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import express from 'express';
 import pgPromise from 'pg-promise';
 
 // Load environment variables from .env file
 dotenv.config();
+
+// Password hashing configuration
+const SALT_ROUNDS = 12;
 
 // Import types for compile-time checking.
 import type { NextFunction, Request, Response } from 'express';
@@ -83,6 +87,11 @@ router.get('/adventurer/:id', readAdventurer);
 router.post('/adventurers', createAdventurer);
 router.put('/adventurer/:id', updateAdventurer);
 router.delete('/adventurer/:id', deleteAdventurer);
+
+/* ============================================================================ */
+/* AUTHENTICATION ROUTES */
+/* ============================================================================ */
+router.post('/auth/login', authenticateUser);
 
 /* ============================================================================ */
 /* REGION ROUTES */
@@ -230,29 +239,49 @@ function readAdventurer(request: Request, response: Response, next: NextFunction
         });
 }
 
-function createAdventurer(request: Request, response: Response, next: NextFunction): void {
-    db.one('INSERT INTO Adventurer(username, password, profilepicture) VALUES (${username}, ${password}, ${profilepicture}) RETURNING id',
-        request.body
-    )
-        .then((data: { id: number }): void => {
-            response.send(data);
-        })
-        .catch((error: Error): void => {
-            next(error);
-        });
+async function createAdventurer(request: Request, response: Response, next: NextFunction): Promise<void> {
+    try {
+        // Hash the password before storing
+        const hashedPassword = await bcrypt.hash(request.body.password, SALT_ROUNDS);
+        
+        const adventurerData = {
+            username: request.body.username,
+            password: hashedPassword,
+            profilepicture: request.body.profilepicture
+        };
+        
+        const data = await db.one(
+            'INSERT INTO Adventurer(username, password, profilepicture) VALUES (${username}, ${password}, ${profilepicture}) RETURNING id',
+            adventurerData
+        );
+        
+        response.send(data);
+    } catch (error) {
+        next(error);
+    }
 }
 
-function updateAdventurer(request: Request, response: Response, next: NextFunction): void {
-    db.oneOrNone('UPDATE Adventurer SET username=${body.username}, password=${body.password}, profilepicture=${body.profilepicture} WHERE id=${params.id} RETURNING id', {
-        params: request.params,
-        body: request.body
-    })
-        .then((data: { id: number } | null): void => {
-            returnDataOr404(response, data);
-        })
-        .catch((error: Error): void => {
-            next(error);
-        });
+async function updateAdventurer(request: Request, response: Response, next: NextFunction): Promise<void> {
+    try {
+        let updateData = { ...request.body };
+        
+        // Hash password if it's being updated
+        if (request.body.password) {
+            updateData.password = await bcrypt.hash(request.body.password, SALT_ROUNDS);
+        }
+        
+        const data = await db.oneOrNone(
+            'UPDATE Adventurer SET username=${body.username}, password=${body.password}, profilepicture=${body.profilepicture} WHERE id=${params.id} RETURNING id',
+            {
+                params: request.params,
+                body: updateData
+            }
+        );
+        
+        returnDataOr404(response, data);
+    } catch (error) {
+        next(error);
+    }
 }
 
 function deleteAdventurer(request: Request, response: Response, next: NextFunction): void {
@@ -274,6 +303,44 @@ function deleteAdventurer(request: Request, response: Response, next: NextFuncti
         .catch((error: Error): void => {
             next(error);
         });
+}
+
+/* ============================================================================ */
+/* AUTHENTICATION FUNCTIONS */
+/* ============================================================================ */
+
+async function authenticateUser(request: Request, response: Response, next: NextFunction): Promise<void> {
+    try {
+        const { username, password } = request.body;
+        
+        if (!username || !password) {
+            response.status(400).json({ error: 'Username and password are required' });
+            return;
+        }
+        
+        // Find user by username
+        const user = await db.oneOrNone('SELECT * FROM Adventurer WHERE username = $1', [username]);
+        
+        if (!user) {
+            response.status(401).json({ error: 'Invalid username or password' });
+            return;
+        }
+        
+        // Verify password
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        
+        if (!passwordMatch) {
+            response.status(401).json({ error: 'Invalid username or password' });
+            return;
+        }
+        
+        // Return user data without password
+        const { password: _, ...userWithoutPassword } = user;
+        response.json({ user: userWithoutPassword });
+        
+    } catch (error) {
+        next(error);
+    }
 }
 
 /* ============================================================================ */
