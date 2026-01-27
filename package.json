@@ -22,6 +22,7 @@
         "dotenv": "^17.2.3",
         "express": "5.x",
         "express-rate-limit": "^8.2.1",
+        "express-validator": "^7.3.1",
         "jsonwebtoken": "^9.0.2",
         "pg-promise": "11.x"
     },
