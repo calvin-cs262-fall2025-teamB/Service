@@ -39,6 +39,7 @@
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
 import pgPromise from 'pg-promise';
 
@@ -52,6 +53,78 @@ const SALT_ROUNDS = 12;
 const JWT_SECRET: string = process.env.JWT_SECRET || 'wayfind-secret-key-change-in-production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
 const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || '7d';
+
+// Rate limiting configuration
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit each IP to 5 requests per windowMs for auth endpoints
+    message: {
+        error: 'Too many authentication attempts, please try again after 15 minutes',
+        retryAfter: '15 minutes',
+        type: 'RATE_LIMIT_AUTH'
+    },
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    skip: (req) => {
+        // Skip rate limiting for successful authentication to allow normal usage
+        return false;
+    },
+    handler: (req, res) => {
+        const clientIP = req.ip || req.socket.remoteAddress;
+        const userAgent = req.get('User-Agent');
+        
+        console.log(`🚨 AUTH RATE LIMIT EXCEEDED:`);
+        console.log(`   IP: ${clientIP}`);
+        console.log(`   Endpoint: ${req.method} ${req.path}`);
+        console.log(`   User-Agent: ${userAgent}`);
+        console.log(`   Timestamp: ${new Date().toISOString()}`);
+        
+        res.status(429).json({
+            error: 'Too many authentication attempts from this IP',
+            message: 'Please wait 15 minutes before trying again',
+            retryAfter: '15 minutes',
+            timestamp: new Date().toISOString(),
+            type: 'RATE_LIMIT_AUTH'
+        });
+    }
+});
+
+// Strict rate limiter for sensitive operations
+const strictLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 3, // Only 3 attempts per hour for very sensitive operations
+    message: {
+        error: 'Too many attempts for this sensitive operation',
+        retryAfter: '1 hour'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+// General API rate limiter (more permissive)
+const generalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: {
+        error: 'Too many requests from this IP',
+        message: 'Please slow down your requests',
+        retryAfter: '15 minutes'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (req, res) => {
+        const clientIP = req.ip || req.socket.remoteAddress;
+        console.log(`⚠️  GENERAL RATE LIMIT: IP ${clientIP} exceeded general API limits`);
+        
+        res.status(429).json({
+            error: 'Too many requests from this IP',
+            message: 'Please slow down your requests',
+            retryAfter: '15 minutes',
+            timestamp: new Date().toISOString(),
+            type: 'RATE_LIMIT_GENERAL'
+        });
+    }
+});
 
 // Import types for compile-time checking.
 import type { NextFunction, Request, Response } from 'express';
@@ -185,9 +258,14 @@ db.connect()
 // Configure the server and its routes
 const app = express();
 const port: number = parseInt(process.env.PORT as string) || 3000;
-const router = express.Router();
 
-router.use(express.json());
+// Apply general rate limiting to all requests
+app.use(generalLimiter);
+
+// Configure CORS and JSON parsing
+app.use(express.json());
+
+const router = express.Router();
 
 router.get('/', readHello);
 router.get('/test', testEndpoint);
@@ -197,15 +275,15 @@ router.get('/test', testEndpoint);
 /* ============================================================================ */
 router.get('/adventurers', readAdventurers);
 router.get('/adventurer/:id', readAdventurer);
-router.post('/adventurers', createAdventurer);
+router.post('/adventurers', authLimiter, createAdventurer); // Rate limited signup
 router.put('/adventurer/:id', authenticateToken, updateAdventurer); // Protected
 router.delete('/adventurer/:id', authenticateToken, deleteAdventurer); // Protected
 
 /* ============================================================================ */
 /* AUTHENTICATION ROUTES */
 /* ============================================================================ */
-router.post('/auth/login', authenticateUser);
-router.post('/auth/refresh', refreshToken);
+router.post('/auth/login', authLimiter, authenticateUser);
+router.post('/auth/refresh', authLimiter, refreshToken);
 router.post('/auth/verify', authenticateToken, verifyTokenEndpoint);
 
 /* ============================================================================ */
