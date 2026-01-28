@@ -3,6 +3,7 @@ import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
 
 export default [
+    { ignores: ['dist/**'] },
     js.configs.recommended,
     {
         files: ['src/**/*.ts'],
@@ -30,11 +31,12 @@ export default [
         },
         rules: {
             ...tseslint.configs.recommended.rules,
+            '@typescript-eslint/no-explicit-any': 'off',
             // Allow unused parameters that start with underscore
             '@typescript-eslint/no-unused-vars': [
                 'error',
                 {
-                    'argsIgnorePattern': '^_',
+                    'argsIgnorePattern': '^_|^next$',
                     'varsIgnorePattern': '^_'
                 }
             ]
